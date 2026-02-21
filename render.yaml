@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: project-tracker
+    runtime: node
+    buildCommand: npm ci --omit=dev
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 4319
+      - key: PROJECTS_ROOT
+        value: /repos
+      - key: GITHUB_TOKEN
+        sync: false   # set manually in Render dashboard

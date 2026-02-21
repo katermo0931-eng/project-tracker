@@ -32,6 +32,7 @@
   }
 
   var all = [];
+  var ghCache = {}; // "owner/repo" → stats or "loading"
 
   function esc(s) {
     s = String(s || "");
@@ -91,6 +92,57 @@
     }).join("");
   }
 
+  function ghBadgesHtml(stats) {
+    var parts = [];
+    if (stats.open_prs > 0) {
+      parts.push("<a class=\"gh-badge gh-pr\" href=\"" + esc(stats.html_url) + "/pulls\" target=\"_blank\" rel=\"noopener\">" +
+        "⬆ " + stats.open_prs + " PR" + (stats.open_prs !== 1 ? "s" : "") + "</a>");
+    }
+    if (stats.open_issues > 0) {
+      parts.push("<a class=\"gh-badge gh-issue\" href=\"" + esc(stats.html_url) + "/issues\" target=\"_blank\" rel=\"noopener\">" +
+        "⚠ " + stats.open_issues + "</a>");
+    }
+    if (!parts.length) {
+      return "<a class=\"gh-badge gh-clean\" href=\"" + esc(stats.html_url) + "\" target=\"_blank\" rel=\"noopener\">GH ✓</a>";
+    }
+    return parts.join(" ");
+  }
+
+  function fetchGhStats(projects) {
+    projects.forEach(function (p) {
+      if (!p.github_repo) return;
+      var key = p.github_repo.owner + "/" + p.github_repo.repo;
+      var elId = "gh-" + p.github_repo.owner + "-" + p.github_repo.repo;
+      var el = document.getElementById(elId);
+
+      if (ghCache[key] && ghCache[key] !== "loading") {
+        if (el) el.innerHTML = ghBadgesHtml(ghCache[key]);
+        return;
+      }
+      if (ghCache[key] === "loading") return;
+
+      ghCache[key] = "loading";
+      fetch("/api/github-stats?owner=" + encodeURIComponent(p.github_repo.owner) +
+            "&repo=" + encodeURIComponent(p.github_repo.repo))
+        .then(function (r) { return r.json(); })
+        .then(function (stats) {
+          if (stats.error) {
+            ghCache[key] = null;
+            if (el) el.innerHTML = "";
+            return;
+          }
+          ghCache[key] = stats;
+          var el2 = document.getElementById(elId);
+          if (el2) el2.innerHTML = ghBadgesHtml(stats);
+        })
+        .catch(function () {
+          ghCache[key] = null;
+          var el2 = document.getElementById(elId);
+          if (el2) el2.innerHTML = "";
+        });
+    });
+  }
+
   function render() {
     var q = (elQ.value || "").trim().toLowerCase();
     var st = elStatus.value || "all";
@@ -126,6 +178,7 @@
             "<div class=\"title\">" +
               ((epicHtml || commitsHtml) ? "<span class=\"expand-icon\">▶</span> " : "") +
               esc(p.title) +
+              (p.github_repo ? " <span class=\"gh-badges\" id=\"gh-" + esc(p.github_repo.owner) + "-" + esc(p.github_repo.repo) + "\">…</span>" : "") +
             "</div>" +
             "<div class=\"folder\">" + esc(p.folder) + "</div>" +
           "</td>" +
@@ -149,6 +202,8 @@
         : "")
       );
     }).join("");
+
+    fetchGhStats(filtered);
 
     Array.from(elRows.querySelectorAll(".proj-row")).forEach(function (row) {
       row.addEventListener("click", function () {

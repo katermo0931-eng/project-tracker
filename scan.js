@@ -7,6 +7,28 @@ import { parseReadme } from "./parseReadme.js";
 
 const execFileAsync = promisify(execFile);
 
+function parseGitHubRepo(remoteUrl) {
+  // https://github.com/owner/repo.git  or  git@github.com:owner/repo.git
+  const m =
+    remoteUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)(?:\.git)?$/) ||
+    remoteUrl.match(/github\.com[:/]([^/]+)\/(.+?)(?:\.git)?$/);
+  if (!m) return null;
+  return { owner: m[1], repo: m[2] };
+}
+
+async function getGitHubRepo(projectDir) {
+  try {
+    const { stdout } = await execFileAsync(
+      "git",
+      ["remote", "get-url", "origin"],
+      { cwd: projectDir, timeout: 3000 }
+    );
+    return parseGitHubRepo(stdout.trim());
+  } catch {
+    return null;
+  }
+}
+
 // Use \x1f (unit separator) — safe with execFile, never appears in commit messages
 async function getGitLog(projectDir) {
   try {
@@ -106,6 +128,7 @@ export async function scanProjects(root) {
     const status = hasBlockers ? "blocked" : missing.length === 0 ? "ready" : "needs work";
 
     const recent_commits = await getGitLog(dir);
+    const github_repo = await getGitHubRepo(dir);
 
     results.push({
       id: name,
@@ -117,7 +140,8 @@ export async function scanProjects(root) {
       description,
       missing_files: missing,
       epics,
-      recent_commits
+      recent_commits,
+      github_repo
     });
   }
 

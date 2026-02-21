@@ -28,7 +28,7 @@ Phase 2: Self-tracking — show both Interactive CV and Project Tracker as proje
 ---
 
 # PHASE 3 — Product Polish
-- [ ] Deploy as standalone web service
-- [ ] GitHub integration (open PR / issue counts)
+- [x] Deploy as standalone web service — Dockerfile, render.yaml, npm start
+- [x] GitHub integration (open PR / issue counts) — auto-detect git remote, /api/github-stats, live badges in title cell
 - [x] Configure PROJECTS_ROOT via UI
 - [x] Export project summary to markdown
