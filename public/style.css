@@ -326,3 +326,102 @@ td.num { color: #94a3b8; }
   flex: 1;
   overflow-wrap: anywhere;
 }
+
+a.commit-hash {
+  color: #3b82f6;
+  text-decoration: none;
+}
+a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
+
+/* ── Dashboard ────────────────────────────────────── */
+.dashboard {
+  padding: 12px 24px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.dash-cards {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.dash-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.dash-card-prog  { min-width: 160px; }
+.dash-card-wide  { flex: 1; min-width: 240px; }
+
+.dash-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.2;
+}
+.dash-pct  { color: #60a5fa; }
+.dash-sub  { font-size: 14px; color: #475569; font-weight: 400; }
+
+.dash-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.dash-prog { margin-top: 8px; height: 4px; }
+
+.dash-status-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.dash-activity {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.dash-proj {
+  font-size: 11px;
+  color: #3b82f6;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+/* ── GitHub badges (inline in title row) ─────────── */
+.gh-badges {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.gh-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.gh-badge:hover { opacity: .8; }
+
+.gh-pr    { background: rgba(74,222,128,.1);  color: #4ade80; border-color: rgba(74,222,128,.25); }
+.gh-issue { background: rgba(251,191,36,.1);  color: #fbbf24; border-color: rgba(251,191,36,.25); }
+.gh-clean { background: rgba(96,165,250,.1);  color: #60a5fa; border-color: rgba(96,165,250,.25); }

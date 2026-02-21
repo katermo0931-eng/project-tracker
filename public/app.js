@@ -51,11 +51,80 @@
     return "warn";
   }
 
-  function renderCommits(commits) {
+  // ── Dashboard ─────────────────────────────────────
+
+  function renderDashboard(projects) {
+    var elDash = document.getElementById("dashboard");
+    if (!elDash) return;
+    var total = projects.length;
+    var blocked = 0, needsWork = 0, ready = 0;
+    var totalDone = 0, totalLeft = 0;
+    var allCommits = [];
+
+    projects.forEach(function (p) {
+      if      (p.status === "blocked")    blocked++;
+      else if (p.status === "needs work") needsWork++;
+      else if (p.status === "ready")      ready++;
+      if (p.metrics) { totalDone += p.metrics.done || 0; totalLeft += p.metrics.left || 0; }
+      var c = p.recent_commits && p.recent_commits[0];
+      if (c) allCommits.push({ project: p.title, hash: c.hash, date: c.date, subject: c.subject });
+    });
+
+    var totalTasks = totalDone + totalLeft;
+    var pct = totalTasks ? Math.round(100 * totalDone / totalTasks) : 0;
+    allCommits.sort(function (a, b) { return b.date.localeCompare(a.date); });
+    var latest = allCommits[0];
+
+    elDash.innerHTML =
+      "<div class=\"dash-cards\">" +
+        "<div class=\"dash-card\">" +
+          "<div class=\"dash-val\">" + total + "</div>" +
+          "<div class=\"dash-lbl\">Projects</div>" +
+        "</div>" +
+        "<div class=\"dash-card\">" +
+          "<div class=\"dash-val\">" + totalDone + "<span class=\"dash-sub\">/" + totalTasks + "</span></div>" +
+          "<div class=\"dash-lbl\">Tasks done</div>" +
+        "</div>" +
+        "<div class=\"dash-card dash-card-prog\">" +
+          "<div class=\"dash-val dash-pct\">" + pct + "%</div>" +
+          "<div class=\"dash-lbl\">Overall progress</div>" +
+          "<div class=\"prog-bar dash-prog\"><div class=\"prog-fill\" style=\"width:" + pct + "%\"></div></div>" +
+        "</div>" +
+        "<div class=\"dash-card\">" +
+          "<div class=\"dash-status-row\">" +
+            "<span class=\"badge blocked\">" + blocked + " blocked</span>" +
+            "<span class=\"badge warn\">"    + needsWork + " needs work</span>" +
+            "<span class=\"badge ok\">"      + ready     + " ready</span>" +
+          "</div>" +
+          "<div class=\"dash-lbl\">By status</div>" +
+        "</div>" +
+        (latest
+          ? "<div class=\"dash-card dash-card-wide\">" +
+              "<div class=\"dash-lbl\">Latest activity</div>" +
+              "<div class=\"dash-activity\">" +
+                "<span class=\"commit-hash\">" + esc(latest.hash)    + "</span>" +
+                "<span class=\"commit-date\">" + esc(latest.date)    + "</span>" +
+                "<span class=\"commit-subject\">" + esc(latest.subject) + "</span>" +
+                "<span class=\"dash-proj\">"   + esc(latest.project) + "</span>" +
+              "</div>" +
+            "</div>"
+          : "") +
+      "</div>";
+  }
+
+  // ── Commits ───────────────────────────────────────
+
+  function renderCommits(commits, githubRepo) {
     if (!commits || !commits.length) return "";
+    var baseUrl = githubRepo
+      ? "https://github.com/" + esc(githubRepo.owner) + "/" + esc(githubRepo.repo) + "/commit/"
+      : null;
     var rows = commits.map(function (c) {
+      var hashEl = baseUrl
+        ? "<a class=\"commit-hash\" href=\"" + baseUrl + esc(c.hash) + "\" target=\"_blank\" rel=\"noopener\" onclick=\"event.stopPropagation()\">" + esc(c.hash) + "</a>"
+        : "<span class=\"commit-hash\">" + esc(c.hash) + "</span>";
       return "<div class=\"commit\">" +
-        "<span class=\"commit-hash\">" + esc(c.hash) + "</span>" +
+        hashEl +
         "<span class=\"commit-date\">" + esc(c.date) + "</span>" +
         "<span class=\"commit-subject\">" + esc(c.subject) + "</span>" +
       "</div>";
@@ -144,6 +213,7 @@
   }
 
   function render() {
+    renderDashboard(all);
     var q = (elQ.value || "").trim().toLowerCase();
     var st = elStatus.value || "all";
 
@@ -169,7 +239,7 @@
       var missing = missingArr.map(esc).join("<br/>");
 
       var epicHtml = renderEpics(p.epics, i);
-      var commitsHtml = renderCommits(p.recent_commits);
+      var commitsHtml = renderCommits(p.recent_commits, p.github_repo);
       var rowId = "erow-" + i;
 
       return (
@@ -237,6 +307,7 @@
       .then(function (r) { return r.json(); })
       .then(function (j) {
         all = j.projects || [];
+        ghCache = {};  // clear on full reload
         var scanned = new Date(j.scanned_at);
         elMeta.textContent =
           "Root: " + j.root +
