@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Project Tracker — Snapshot</title>
+  <style>
+/* ── Reset & Base ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+  background: #0f172a;   /* slate-900 */
+  color: #cbd5e1;         /* slate-300 */
+}
+
+/* ── Header ───────────────────────────────────────── */
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: #1e293b;   /* slate-800 */
+  border-bottom: 1px solid #334155;  /* slate-700 */
+}
+
+h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: #f1f5f9;         /* slate-100 */
+}
+
+.meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #475569;         /* slate-600 */
+  line-height: 1.4;
+}
+
+/* ── Controls ─────────────────────────────────────── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.controls input,
+.controls select,
+.controls button {
+  font-size: 13px;
+  font-family: inherit;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+.controls input { width: 240px; }
+.controls input::placeholder { color: #475569; }
+
+.controls select option { background: #1e293b; }
+
+.controls button {
+  background: #1e3a5f;
+  color: #93c5fd;
+  border-color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+.controls button:hover { background: #1d4ed8; color: #fff; }
+
+.countdown {
+  font-size: 12px;
+  color: #475569;
+  min-width: 64px;
+}
+
+/* ── Root bar ─────────────────────────────────────── */
+.root-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 24px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  font-size: 12px;
+}
+
+.root-bar label {
+  color: #475569;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.root-input {
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #cbd5e1;
+  width: 380px;
+}
+.root-input::placeholder { color: #334155; }
+.root-input:focus { outline: none; border-color: #3b82f6; }
+
+.root-bar button {
+  font-size: 12px;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #2563eb;
+  background: #1e3a5f;
+  color: #93c5fd;
+  cursor: pointer;
+  font-weight: 600;
+}
+.root-bar button:hover { background: #1d4ed8; color: #fff; }
+
+/* ── Main / Table ─────────────────────────────────── */
+main { padding: 16px 24px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  overflow: hidden;
+  table-layout: fixed;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid #1e293b;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+th {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #475569;
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+}
+
+tr:last-child td { border-bottom: none; }
+
+/* ── Project cell ─────────────────────────────────── */
+.proj .title  { font-weight: 600; color: #f1f5f9; }
+.proj .folder { font-size: 12px; color: #475569; margin-top: 3px; }
+
+/* ── Status badges ────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  border: 1px solid transparent;
+}
+.badge.ok      { background: rgba(74,222,128,.1);  color: #4ade80; border-color: rgba(74,222,128,.25); }
+.badge.warn    { background: rgba(251,191,36,.1);  color: #fbbf24; border-color: rgba(251,191,36,.25); }
+.badge.blocked { background: rgba(248,113,113,.1); color: #f87171; border-color: rgba(248,113,113,.25); }
+
+/* ── Numbers ──────────────────────────────────────── */
+td.num { color: #94a3b8; }
+
+/* ── Progress bar ─────────────────────────────────── */
+.prog-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.prog-bar {
+  flex: 1;
+  height: 5px;
+  background: #334155;
+  border-radius: 999px;
+  overflow: hidden;
+  min-width: 48px;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  transition: width .4s ease;
+}
+.prog-pct { font-size: 12px; color: #60a5fa; white-space: nowrap; font-weight: 600; }
+
+/* ── GitHub badges ────────────────────────────────── */
+.gh-badges { margin-left: 6px; white-space: nowrap; }
+
+.gh-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 999px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+.gh-badge:hover { opacity: .8; }
+
+.gh-pr    { background: rgba(59,130,246,.15); color: #60a5fa; border-color: rgba(59,130,246,.3); }
+.gh-issue { background: rgba(251,191,36,.12);  color: #fbbf24; border-color: rgba(251,191,36,.3); }
+.gh-clean { background: rgba(74,222,128,.1);   color: #4ade80; border-color: rgba(74,222,128,.25); }
+
+/* ── Description / current task ──────────────────── */
+.desc { color: #94a3b8; }
+.current-task { color: #cbd5e1; }
+
+.missing {
+  margin-top: 6px;
+  color: #fbbf24;
+  background: rgba(251,191,36,.07);
+  border: 1px dashed rgba(251,191,36,.3);
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+/* ── Row expand ───────────────────────────────────── */
+.proj-row { cursor: pointer; transition: background .15s; }
+.proj-row:hover td { background: rgba(96,165,250,.05); }
+.expand-icon { color: #475569; margin-right: 4px; }
+
+/* ── Epic detail panel ────────────────────────────── */
+.epic-detail td {
+  background: #0f172a;
+  padding: 16px 20px !important;
+  border-bottom: 1px solid #334155;
+}
+
+.epic-list { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.epic {
+  flex: 1;
+  min-width: 200px;
+  background: #1e293b;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  overflow: hidden;
+}
+.epic.status-ok      { border-left: 3px solid #4ade80; }
+.epic.status-warn    { border-left: 3px solid #fbbf24; }
+.epic.status-blocked { border-left: 3px solid #f87171; }
+
+.epic-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+}
+.epic-hdr:hover { background: rgba(96,165,250,.06); }
+
+.epic-fold  { color: #475569; flex-shrink: 0; }
+.epic-title { font-weight: 600; color: #e2e8f0; flex: 1; }
+
+.epic-tasks { padding: 8px 12px; }
+
+.task         { padding: 2px 0; line-height: 1.5; }
+.task.done    { color: #4ade80; }
+.task.pending { color: #fbbf24; }
+.task.blocked { color: #f87171; font-weight: 600; }
+
+/* ── Recent commits ───────────────────────────────── */
+.commits-section {
+  margin-top: 16px;
+  border-top: 1px solid #334155;
+  padding-top: 12px;
+}
+
+.commits-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.commit {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(51,65,85,.5);
+  line-height: 1.4;
+}
+.commit:last-child { border-bottom: none; }
+
+.commit-hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #3b82f6;
+  flex-shrink: 0;
+  letter-spacing: .04em;
+}
+
+.commit-date {
+  font-size: 12px;
+  color: #475569;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.commit-subject {
+  font-size: 13px;
+  color: #cbd5e1;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+a.commit-hash {
+  color: #3b82f6;
+  text-decoration: none;
+}
+a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
+
+/* ── Dashboard ────────────────────────────────────── */
+.dashboard {
+  padding: 12px 24px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.dash-cards {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.dash-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+
+.dash-card-prog  { min-width: 160px; }
+.dash-card-wide  { flex: 1; min-width: 240px; }
+
+.dash-val {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.2;
+}
+.dash-pct  { color: #60a5fa; }
+.dash-sub  { font-size: 14px; color: #475569; font-weight: 400; }
+
+.dash-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.dash-prog { margin-top: 8px; height: 4px; }
+
+.dash-status-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.dash-activity {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.dash-proj {
+  font-size: 11px;
+  color: #3b82f6;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+/* ── GitHub badges (inline in title row) ─────────── */
+.gh-badges {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.gh-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.gh-badge:hover { opacity: .8; }
+
+.gh-pr    { background: rgba(74,222,128,.1);  color: #4ade80; border-color: rgba(74,222,128,.25); }
+.gh-issue { background: rgba(251,191,36,.1);  color: #fbbf24; border-color: rgba(251,191,36,.25); }
+.gh-clean { background: rgba(96,165,250,.1);  color: #60a5fa; border-color: rgba(96,165,250,.25); }
+
+  </style>
+  <style>
+    /* static mode: hide server-dependent controls */
+    .root-bar, #refresh, #countdown { display: none !important; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Project Tracker</h1>
+      <div class="meta" id="meta"></div>
+    </div>
+
+    <div class="controls">
+      <input id="q" placeholder="Search by name / description…" />
+      <select id="status">
+        <option value="all">All</option>
+        <option value="blocked">Blocked</option>
+        <option value="needs work">Needs work</option>
+        <option value="ready">Ready</option>
+      </select>
+      <button id="refresh">Refresh</button>
+      <button id="export">Export MD</button>
+      <span id="countdown" class="countdown"></span>
+    </div>
+    <div class="root-bar">
+      <label for="root-input">Root</label>
+      <input id="root-input" class="root-input" />
+      <button id="root-apply">Apply</button>
+    </div>
+  </header>
+
+  <div id="dashboard" class="dashboard"></div>
+
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th>Project</th>
+          <th>Status</th>
+          <th>Done</th>
+          <th>Left</th>
+          <th>Progress</th>
+          <th>Current Task</th>
+          <th>Description / Missing</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <script>
+    /* ── Static data shim ──────────────────────────────────
+       Intercepts /api/* fetch calls and returns the snapshot
+       baked in at build time. app.js is loaded unchanged.
+    ─────────────────────────────────────────────────────── */
+    window.STATIC_DATA = {"root":"C:\\Users\\Hola","scanned_at":"2026-02-21T23:03:10.103Z","projects":[{"id":"Interactive-CV","folder":"C:\\Users\\Hola\\Interactive-CV","status":"ready","metrics":{"done":31,"left":0,"progress_percent":100},"current_task":"Phase 3: Content Layer — LinkedIn ingestion, auto-update pipeline","title":"Interactive CV","description":"An AI-powered, interactive single-page CV/resume with dark/light theme, scroll animations, and a built-in AI chat assistant that answers visitor questions about your background.","missing_files":[],"epics":[{"title":"PHASE 1 — AI Backend (Core Engine)","tasks":[{"status":"done","text":"Basic Express server"},{"status":"done","text":"Static CV serving"},{"status":"done","text":"POST /api/chat endpoint skeleton"},{"status":"done","text":"Environment variable loading (.env)"},{"status":"done","text":"Embeddings integration (OpenAI)"},{"status":"done","text":"CV content ingestion → vector store"},{"status":"done","text":"Retrieval (top-k chunks)"},{"status":"done","text":"Response grounding with citations"},{"status":"done","text":"Basic rate limiting"},{"status":"done","text":"Migrate to Next.js — API routes as Vercel serverless functions"}]},{"title":"PHASE 2 — Chat UI & CV Features","tasks":[{"status":"done","text":"Chat widget component"},{"status":"done","text":"Streaming responses"},{"status":"done","text":"Error handling in UI"},{"status":"done","text":"Conversation memory (per session)"},{"status":"done","text":"PDF download — real CV file served from /public"},{"status":"done","text":"LinkedIn recommendations — AI system prompt enrichment (8 colleague quotes)"},{"status":"done","text":"LinkedIn recommendations — rotating quote bar (fades every 5s)"},{"status":"done","text":"LinkedIn recommendations — Colleagues Say section with portrait cards & filter chips"},{"status":"done","text":"LinkedIn branded button in header (alongside Download CV)"}]},{"title":"PHASE 3 — Content Layer","tasks":[{"status":"done","text":"LinkedIn profile ingestion — scripts/import-linkedin.js diffs LinkedIn export CSVs against cv-data.json, --update merges"},{"status":"done","text":"PDF CV parsing — scripts/parse-pdf.js extracts text, diffs against cv-data.json, 2 new bullets added"},{"status":"done","text":"JSON structured experience format — CV_DATA extracted to data/cv-data.json"},{"status":"done","text":"Questions section — 5 categories, 15 prompts, scroll-to-chat on click"},{"status":"done","text":"Auto-update content pipeline — scripts/update.js; npm run update / update:push"}]},{"title":"PHASE 4 — Deploy & Infra","tasks":[{"status":"done","text":"Deploy backend (Render / Railway) — superseded; backend runs as Vercel serverless functions (see Phase 1)"},{"status":"done","text":"Deploy frontend (Vercel)"},{"status":"done","text":"Add logging — structured JSON logs in /api/chat (reqId, latency, token usage) via Vercel log drains"},{"status":"done","text":"Add monitoring — /api/health endpoint + Vercel Analytics (@vercel/analytics)"}]},{"title":"PHASE 5 — Meta Tools","tasks":[{"status":"done","text":"GitHub PR/Issues aggregation — /api/github-stats endpoint; eager-loaded badges (open PRs, issues) in project title row; scan.js detects GitHub remote per project"},{"status":"done","text":"Tracker integration improvements — clickable commit hashes link to GitHub; ghCache cleared on full reload; export MD includes GitHub URL"},{"status":"done","text":"Project health dashboard — summary bar: total projects, tasks done/total, overall % progress bar, status breakdown badges, latest activity strip"}]}],"recent_commits":[{"hash":"e37aa5b","date":"2026-02-22","subject":"chore: mark Phase 5 complete in BACKLOG"},{"hash":"12af012","date":"2026-02-21","subject":"feat: enhance /api/health monitoring endpoint"},{"hash":"ed03a98","date":"2026-02-21","subject":"feat: add logging and monitoring (Phase 4 complete)"},{"hash":"fdaa2b1","date":"2026-02-21","subject":"Inject pre-written Q&A into AI system prompt"},{"hash":"47c8a23","date":"2026-02-21","subject":"Polish language in pre-written Q&A answers"},{"hash":"21a94a2","date":"2026-02-21","subject":"feat: add auto-update content pipeline (scripts/update.js)"},{"hash":"06f437d","date":"2026-02-21","subject":"Add Languages.csv support to LinkedIn import script"},{"hash":"02a4c4a","date":"2026-02-21","subject":"Rewrite all 15 answers in clean declarative prose matching CV tone"},{"hash":"194ffab","date":"2026-02-21","subject":"Clean all pre-written answers: remove quoted words, standardise British English"},{"hash":"13c90dc","date":"2026-02-21","subject":"Add pre-written answers for all 15 question chips; render markdown in chat"},{"hash":"f74d26c","date":"2026-02-21","subject":"Add LinkedIn export ingestion script"},{"hash":"6193fef","date":"2026-02-21","subject":"Inject cv-data.json into AI system prompt"},{"hash":"add3c62","date":"2026-02-21","subject":"Strengthen no-markdown instruction in system prompt"},{"hash":"b3e1071","date":"2026-02-21","subject":"Render markdown in chat responses; reduce formatting noise in prompts"},{"hash":"f85b993","date":"2026-02-21","subject":"Test Vercel webhook connection"},{"hash":"5280d59","date":"2026-02-21","subject":"Add PDF parse script, update CV data and backlog"},{"hash":"8646f34","date":"2026-02-21","subject":"Rename question category labels to executive interview framing"},{"hash":"2b3c8ae","date":"2026-02-21","subject":"Revise question set to interview-style third-person voice"},{"hash":"545ab19","date":"2026-02-21","subject":"Add Questions section and extract CV data to JSON"},{"hash":"55080aa","date":"2026-02-21","subject":"Auto-populate tracker with git commit history"}],"github_repo":{"owner":"katermo0931-eng","repo":"Interactive-CV"}},{"id":"project-tracker","folder":"C:\\Users\\Hola\\project-tracker","status":"ready","metrics":{"done":22,"left":0,"progress_percent":100},"current_task":"Phase 4 complete — dashboard, GitHub integration, commit links","title":"Project Tracker","description":"A lightweight local web dashboard for tracking personal development projects — built to replace spreadsheets and sticky notes with a single live view of progress, phases, and git activity.","missing_files":[],"epics":[{"title":"PHASE 1 — Core Engine","tasks":[{"status":"done","text":"Express server with static file serving"},{"status":"done","text":"Project directory scanning (top-level dirs under PROJECTS_ROOT)"},{"status":"done","text":"BACKLOG.md parser — task checkboxes → auto-computed progress metrics"},{"status":"done","text":"README.md parser — extract title and description"},{"status":"done","text":"Git log integration — recent commits via execFile (no shell dependency)"},{"status":"done","text":"Consistent metrics: no hardcoded numbers, live from file"}]},{"title":"PHASE 2 — UI & Design","tasks":[{"status":"done","text":"Filterable project list (search + status filter)"},{"status":"done","text":"Expandable epic/phase breakdown per project"},{"status":"done","text":"Progress bar with gradient fill"},{"status":"done","text":"Dark theme — slate-900/800/700 + blue-400 palette"},{"status":"done","text":"Consistent 13px typography system"},{"status":"done","text":"Recent commits panel in expanded row"},{"status":"done","text":"Standalone repo — tracked as its own product"},{"status":"done","text":"Auto-refresh (polling every N seconds)"}]},{"title":"PHASE 3 — Product Polish","tasks":[{"status":"done","text":"Deploy as standalone web service — Dockerfile, render.yaml, npm start"},{"status":"done","text":"GitHub integration (open PR / issue counts) — auto-detect git remote, /api/github-stats, live badges in title cell"},{"status":"done","text":"Configure PROJECTS_ROOT via UI"},{"status":"done","text":"Export project summary to markdown"}]},{"title":"PHASE 4 — Dashboard & Integrations","tasks":[{"status":"done","text":"Project health dashboard — summary bar: total projects, tasks done/total, overall % progress bar, by-status breakdown, latest activity strip"},{"status":"done","text":"Clickable commit hashes — link to GitHub commit URL when remote is detected"},{"status":"done","text":"ghCache cleared on full reload — no stale GitHub stats after manual refresh"},{"status":"done","text":"Export MD includes GitHub repo URL per project"}]}],"recent_commits":[{"hash":"e88c11e","date":"2026-02-22","subject":"chore: update BACKLOG with Phase 4 completed tasks"},{"hash":"d2ae929","date":"2026-02-22","subject":"feat: Phase 5 — dashboard, GitHub integration, tracker improvements"},{"hash":"b74aa10","date":"2026-02-21","subject":"feat: GitHub PR/issue badges + deploy config"},{"hash":"059740e","date":"2026-02-21","subject":"feat: export to markdown + configure PROJECTS_ROOT via UI"},{"hash":"62d6c8a","date":"2026-02-21","subject":"Initial release — standalone project tracker"}],"github_repo":{"owner":"katermo0931-eng","repo":"project-tracker"}}]};
+    (function () {
+      var _fetch = window.fetch;
+      window.fetch = function (url) {
+        var s = typeof url === "string" ? url : String(url);
+        if (s.indexOf("/api/projects") !== -1) {
+          return Promise.resolve({
+            json: function () { return Promise.resolve(window.STATIC_DATA); }
+          });
+        }
+        if (s.indexOf("/api/github-stats") !== -1) {
+          return Promise.resolve({
+            json: function () { return Promise.resolve({ error: "static mode" }); }
+          });
+        }
+        return _fetch.apply(this, arguments);
+      };
+    })();
+  </script>
+
+  <script>
+﻿(function () {
+  var elRows = document.getElementById("rows");
+  var elMeta = document.getElementById("meta");
+  var elQ = document.getElementById("q");
+  var elStatus = document.getElementById("status");
+  var elRefresh = document.getElementById("refresh");
+  var elCountdown = document.getElementById("countdown");
+  var elRootInput = document.getElementById("root-input");
+  var elRootApply = document.getElementById("root-apply");
+
+  var STORAGE_KEY = "tracker_root";
+  var customRoot = localStorage.getItem(STORAGE_KEY) || "";
+  elRootInput.value = customRoot;
+
+  var AUTO_REFRESH_SEC = 30;
+  var countdownTimer = null;
+  var secondsLeft = AUTO_REFRESH_SEC;
+
+  function startCountdown() {
+    clearInterval(countdownTimer);
+    secondsLeft = AUTO_REFRESH_SEC;
+    elCountdown.textContent = "Next: " + secondsLeft + "s";
+    countdownTimer = setInterval(function () {
+      secondsLeft -= 1;
+      elCountdown.textContent = "Next: " + secondsLeft + "s";
+      if (secondsLeft <= 0) {
+        clearInterval(countdownTimer);
+        elCountdown.textContent = "Refreshing…";
+        load();
+      }
+    }, 1000);
+  }
+
+  var all = [];
+  var ghCache = {}; // "owner/repo" → stats or "loading"
+
+  function esc(s) {
+    s = String(s || "");
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  var TASK_ICON = { done: "✓", blocked: "✗", pending: "○" };
+
+  function epicBadgeClass(tasks) {
+    if (!tasks.length) return "warn";
+    if (tasks.some(function (t) { return t.status === "blocked"; })) return "blocked";
+    if (tasks.every(function (t) { return t.status === "done"; })) return "ok";
+    return "warn";
+  }
+
+  // ── Dashboard ─────────────────────────────────────
+
+  function renderDashboard(projects) {
+    var elDash = document.getElementById("dashboard");
+    if (!elDash) return;
+    var total = projects.length;
+    var blocked = 0, needsWork = 0, ready = 0;
+    var totalDone = 0, totalLeft = 0;
+    var allCommits = [];
+
+    projects.forEach(function (p) {
+      if      (p.status === "blocked")    blocked++;
+      else if (p.status === "needs work") needsWork++;
+      else if (p.status === "ready")      ready++;
+      if (p.metrics) { totalDone += p.metrics.done || 0; totalLeft += p.metrics.left || 0; }
+      var c = p.recent_commits && p.recent_commits[0];
+      if (c) allCommits.push({ project: p.title, hash: c.hash, date: c.date, subject: c.subject });
+    });
+
+    var totalTasks = totalDone + totalLeft;
+    var pct = totalTasks ? Math.round(100 * totalDone / totalTasks) : 0;
+    allCommits.sort(function (a, b) { return b.date.localeCompare(a.date); });
+    var latest = allCommits[0];
+
+    elDash.innerHTML =
+      "<div class=\"dash-cards\">" +
+        "<div class=\"dash-card\">" +
+          "<div class=\"dash-val\">" + total + "</div>" +
+          "<div class=\"dash-lbl\">Projects</div>" +
+        "</div>" +
+        "<div class=\"dash-card\">" +
+          "<div class=\"dash-val\">" + totalDone + "<span class=\"dash-sub\">/" + totalTasks + "</span></div>" +
+          "<div class=\"dash-lbl\">Tasks done</div>" +
+        "</div>" +
+        "<div class=\"dash-card dash-card-prog\">" +
+          "<div class=\"dash-val dash-pct\">" + pct + "%</div>" +
+          "<div class=\"dash-lbl\">Overall progress</div>" +
+          "<div class=\"prog-bar dash-prog\"><div class=\"prog-fill\" style=\"width:" + pct + "%\"></div></div>" +
+        "</div>" +
+        "<div class=\"dash-card\">" +
+          "<div class=\"dash-status-row\">" +
+            "<span class=\"badge blocked\">" + blocked + " blocked</span>" +
+            "<span class=\"badge warn\">"    + needsWork + " needs work</span>" +
+            "<span class=\"badge ok\">"      + ready     + " ready</span>" +
+          "</div>" +
+          "<div class=\"dash-lbl\">By status</div>" +
+        "</div>" +
+        (latest
+          ? "<div class=\"dash-card dash-card-wide\">" +
+              "<div class=\"dash-lbl\">Latest activity</div>" +
+              "<div class=\"dash-activity\">" +
+                "<span class=\"commit-hash\">" + esc(latest.hash)    + "</span>" +
+                "<span class=\"commit-date\">" + esc(latest.date)    + "</span>" +
+                "<span class=\"commit-subject\">" + esc(latest.subject) + "</span>" +
+                "<span class=\"dash-proj\">"   + esc(latest.project) + "</span>" +
+              "</div>" +
+            "</div>"
+          : "") +
+      "</div>";
+  }
+
+  // ── Commits ───────────────────────────────────────
+
+  function renderCommits(commits, githubRepo) {
+    if (!commits || !commits.length) return "";
+    var baseUrl = githubRepo
+      ? "https://github.com/" + esc(githubRepo.owner) + "/" + esc(githubRepo.repo) + "/commit/"
+      : null;
+    var rows = commits.map(function (c) {
+      var hashEl = baseUrl
+        ? "<a class=\"commit-hash\" href=\"" + baseUrl + esc(c.hash) + "\" target=\"_blank\" rel=\"noopener\" onclick=\"event.stopPropagation()\">" + esc(c.hash) + "</a>"
+        : "<span class=\"commit-hash\">" + esc(c.hash) + "</span>";
+      return "<div class=\"commit\">" +
+        hashEl +
+        "<span class=\"commit-date\">" + esc(c.date) + "</span>" +
+        "<span class=\"commit-subject\">" + esc(c.subject) + "</span>" +
+      "</div>";
+    }).join("");
+    return "<div class=\"commits-section\">" +
+      "<div class=\"commits-title\">Recent commits</div>" +
+      rows +
+    "</div>";
+  }
+
+  function renderEpics(epics, rowIdx) {
+    if (!epics || !epics.length) return "";
+    return epics.map(function (ep, ei) {
+      var doneCnt = ep.tasks.filter(function (t) { return t.status === "done"; }).length;
+      var total = ep.tasks.length;
+      var cls = epicBadgeClass(ep.tasks);
+      var tasksId = "etasks-" + rowIdx + "-" + ei;
+      var tasks = ep.tasks.map(function (t) {
+        var st = t.status || "pending";
+        return "<div class=\"task " + st + "\">" +
+          (TASK_ICON[st] || "○") + " " + esc(t.text) +
+        "</div>";
+      }).join("");
+      return "<div class=\"epic status-" + cls + "\">" +
+        "<div class=\"epic-hdr\" data-tasks-id=\"" + tasksId + "\">" +
+          "<span class=\"epic-fold\">▼</span>" +
+          "<span class=\"epic-title\">" + esc(ep.title) + "</span>" +
+          (total ? "<span class=\"badge " + cls + "\">" + doneCnt + "/" + total + "</span>" : "") +
+        "</div>" +
+        "<div class=\"epic-tasks\" id=\"" + tasksId + "\">" +
+          tasks +
+        "</div>" +
+      "</div>";
+    }).join("");
+  }
+
+  function ghBadgesHtml(stats) {
+    var parts = [];
+    if (stats.open_prs > 0) {
+      parts.push("<a class=\"gh-badge gh-pr\" href=\"" + esc(stats.html_url) + "/pulls\" target=\"_blank\" rel=\"noopener\">" +
+        "⬆ " + stats.open_prs + " PR" + (stats.open_prs !== 1 ? "s" : "") + "</a>");
+    }
+    if (stats.open_issues > 0) {
+      parts.push("<a class=\"gh-badge gh-issue\" href=\"" + esc(stats.html_url) + "/issues\" target=\"_blank\" rel=\"noopener\">" +
+        "⚠ " + stats.open_issues + "</a>");
+    }
+    if (!parts.length) {
+      return "<a class=\"gh-badge gh-clean\" href=\"" + esc(stats.html_url) + "\" target=\"_blank\" rel=\"noopener\">GH ✓</a>";
+    }
+    return parts.join(" ");
+  }
+
+  function fetchGhStats(projects) {
+    projects.forEach(function (p) {
+      if (!p.github_repo) return;
+      var key = p.github_repo.owner + "/" + p.github_repo.repo;
+      var elId = "gh-" + p.github_repo.owner + "-" + p.github_repo.repo;
+      var el = document.getElementById(elId);
+
+      if (ghCache[key] && ghCache[key] !== "loading") {
+        if (el) el.innerHTML = ghBadgesHtml(ghCache[key]);
+        return;
+      }
+      if (ghCache[key] === "loading") return;
+
+      ghCache[key] = "loading";
+      fetch("/api/github-stats?owner=" + encodeURIComponent(p.github_repo.owner) +
+            "&repo=" + encodeURIComponent(p.github_repo.repo))
+        .then(function (r) { return r.json(); })
+        .then(function (stats) {
+          if (stats.error) {
+            ghCache[key] = null;
+            if (el) el.innerHTML = "";
+            return;
+          }
+          ghCache[key] = stats;
+          var el2 = document.getElementById(elId);
+          if (el2) el2.innerHTML = ghBadgesHtml(stats);
+        })
+        .catch(function () {
+          ghCache[key] = null;
+          var el2 = document.getElementById(elId);
+          if (el2) el2.innerHTML = "";
+        });
+    });
+  }
+
+  function render() {
+    renderDashboard(all);
+    var q = (elQ.value || "").trim().toLowerCase();
+    var st = elStatus.value || "all";
+
+    var filtered = all.filter(function (p) {
+      var title = (p && p.title) ? p.title : "";
+      var desc = (p && p.description) ? p.description : "";
+      var hay = (title + " " + desc).toLowerCase();
+      var okQ = (!q) || (hay.indexOf(q) !== -1);
+      var okSt = (st === "all") || (p.status === st);
+      return okQ && okSt;
+    });
+
+    elRows.innerHTML = filtered.map(function (p, i) {
+      var m = p.metrics || {};
+      var done = (m.done !== null && m.done !== undefined) ? m.done : "";
+      var left = (m.left !== null && m.left !== undefined) ? m.left : "";
+      var prog = (m.progress_percent !== null && m.progress_percent !== undefined) ? m.progress_percent : "";
+      var progHtml = (prog !== "")
+        ? "<div class=\"prog-wrap\"><div class=\"prog-bar\"><div class=\"prog-fill\" style=\"width:" + prog + "%\"></div></div><span class=\"prog-pct\">" + prog + "%</span></div>"
+        : "";
+
+      var missingArr = p.missing_files || [];
+      var missing = missingArr.map(esc).join("<br/>");
+
+      var epicHtml = renderEpics(p.epics, i);
+      var commitsHtml = renderCommits(p.recent_commits, p.github_repo);
+      var rowId = "erow-" + i;
+
+      return (
+        "<tr class=\"proj-row\" data-epic-target=\"" + rowId + "\">" +
+          "<td class=\"proj\">" +
+            "<div class=\"title\">" +
+              ((epicHtml || commitsHtml) ? "<span class=\"expand-icon\">▶</span> " : "") +
+              esc(p.title) +
+              (p.github_repo ? " <span class=\"gh-badges\" id=\"gh-" + esc(p.github_repo.owner) + "-" + esc(p.github_repo.repo) + "\">…</span>" : "") +
+            "</div>" +
+            "<div class=\"folder\">" + esc(p.folder) + "</div>" +
+          "</td>" +
+          "<td><span class=\"badge " + (p.status === "ready" ? "ok" : p.status === "blocked" ? "blocked" : "warn") + "\">" + esc(p.status) + "</span></td>" +
+          "<td class=\"num\">" + done + "</td>" +
+          "<td class=\"num\">" + left + "</td>" +
+          "<td>" + progHtml + "</td>" +
+          "<td class=\"current-task\">" + esc(p.current_task) + "</td>" +
+          "<td>" +
+            "<div class=\"desc\">" + esc(p.description) + "</div>" +
+            (missing ? ("<div class=\"missing\"><b>Missing:</b><br/>" + missing + "</div>") : "") +
+          "</td>" +
+        "</tr>" +
+        ((epicHtml || commitsHtml) ?
+          "<tr id=\"" + rowId + "\" class=\"epic-detail\" style=\"display:none\">" +
+            "<td colspan=\"7\">" +
+              (epicHtml ? "<div class=\"epic-list\">" + epicHtml + "</div>" : "") +
+              commitsHtml +
+            "</td>" +
+          "</tr>"
+        : "")
+      );
+    }).join("");
+
+    fetchGhStats(filtered);
+
+    Array.from(elRows.querySelectorAll(".proj-row")).forEach(function (row) {
+      row.addEventListener("click", function () {
+        var target = document.getElementById(row.dataset.epicTarget);
+        if (!target) return;
+        var open = target.style.display !== "none";
+        target.style.display = open ? "none" : "";
+        var icon = row.querySelector(".expand-icon");
+        if (icon) icon.textContent = open ? "▶" : "▼";
+      });
+    });
+
+    Array.from(elRows.querySelectorAll(".epic-hdr")).forEach(function (hdr) {
+      hdr.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var tasksEl = document.getElementById(hdr.dataset.tasksId);
+        if (!tasksEl) return;
+        var collapsed = tasksEl.style.display === "none";
+        tasksEl.style.display = collapsed ? "" : "none";
+        var icon = hdr.querySelector(".epic-fold");
+        if (icon) icon.textContent = collapsed ? "▼" : "▶";
+      });
+    });
+  }
+
+  function load() {
+    elMeta.textContent = "Scanning…";
+    elCountdown.textContent = "";
+    var url = "/api/projects" + (customRoot ? "?root=" + encodeURIComponent(customRoot) : "");
+    fetch(url)
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        all = j.projects || [];
+        ghCache = {};  // clear on full reload
+        var scanned = new Date(j.scanned_at);
+        elMeta.textContent =
+          "Root: " + j.root +
+          " | Projects: " + all.length +
+          " | Last scan: " + scanned.toLocaleString();
+        render();
+        startCountdown();
+      })
+      .catch(function (e) {
+        elMeta.textContent = "Load error: " + String(e);
+        startCountdown();
+      });
+  }
+
+  var elExport = document.getElementById("export");
+
+  var STATUS_ICON = { ready: "✓", blocked: "✗", "needs work": "~" };
+  var TASK_ICON_MD = { done: "✓", blocked: "✗", pending: "○" };
+
+  function exportMarkdown() {
+    var lines = [];
+    var now = new Date();
+    lines.push("# Project Summary");
+    lines.push("");
+    lines.push("_Exported: " + now.toLocaleString() + "_");
+    if (all.length) {
+      var meta = document.getElementById("meta").textContent;
+      var rootMatch = meta.match(/Root:\s*([^\|]+)/);
+      if (rootMatch) lines.push("_Root: " + rootMatch[1].trim() + "_");
+    }
+    lines.push("");
+    lines.push("---");
+
+    all.forEach(function (p) {
+      var m = p.metrics || {};
+      var icon = STATUS_ICON[p.status] || "~";
+      lines.push("");
+      lines.push("## " + icon + " " + p.title);
+      var statusLine = "**Status:** " + p.status;
+      if (m.progress_percent != null) {
+        statusLine += " | **Progress:** " + m.progress_percent + "% (" + m.done + "/" + (m.done + m.left) + " done)";
+      }
+      lines.push(statusLine);
+      if (p.current_task) lines.push("**Current task:** " + p.current_task);
+      if (p.description) lines.push("**Description:** " + p.description);
+
+      if (p.epics && p.epics.length) {
+        lines.push("");
+        p.epics.forEach(function (ep) {
+          var done = ep.tasks.filter(function (t) { return t.status === "done"; }).length;
+          lines.push("### " + ep.title + " (" + done + "/" + ep.tasks.length + ")");
+          ep.tasks.forEach(function (t) {
+            lines.push("- " + (TASK_ICON_MD[t.status] || "○") + " " + t.text);
+          });
+        });
+      }
+
+      if (p.recent_commits && p.recent_commits.length) {
+        lines.push("");
+        lines.push("### Recent commits");
+        p.recent_commits.slice(0, 5).forEach(function (c) {
+          lines.push("- `" + c.hash + "` " + c.date + " — " + c.subject);
+        });
+      }
+    });
+
+    var md = lines.join("\n");
+    var blob = new Blob([md], { type: "text/markdown" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "projects-" + now.toISOString().slice(0, 10) + ".md";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  elQ.addEventListener("input", render);
+  elStatus.addEventListener("change", render);
+  elRefresh.addEventListener("click", function () {
+    load();
+  });
+  elExport.addEventListener("click", exportMarkdown);
+
+  elRootApply.addEventListener("click", function () {
+    customRoot = elRootInput.value.trim();
+    if (customRoot) {
+      localStorage.setItem(STORAGE_KEY, customRoot);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    load();
+  });
+  elRootInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") elRootApply.click();
+  });
+
+  load();
+})();
+
+  </script>
+</body>
+</html>
