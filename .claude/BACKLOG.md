@@ -1,7 +1,7 @@
 # Project Tracker — Backlog
 
 ## Current
-Phase 2: Self-tracking — show both Interactive CV and Project Tracker as projects
+Phase 4 complete — dashboard, GitHub integration, commit links
 
 ---
 
@@ -32,3 +32,11 @@ Phase 2: Self-tracking — show both Interactive CV and Project Tracker as proje
 - [x] GitHub integration (open PR / issue counts) — auto-detect git remote, /api/github-stats, live badges in title cell
 - [x] Configure PROJECTS_ROOT via UI
 - [x] Export project summary to markdown
+
+---
+
+# PHASE 4 — Dashboard & Integrations
+- [x] Project health dashboard — summary bar: total projects, tasks done/total, overall % progress bar, by-status breakdown, latest activity strip
+- [x] Clickable commit hashes — link to GitHub commit URL when remote is detected
+- [x] ghCache cleared on full reload — no stale GitHub stats after manual refresh
+- [x] Export MD includes GitHub repo URL per project
