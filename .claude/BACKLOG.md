@@ -23,12 +23,12 @@ Phase 2: Self-tracking — show both Interactive CV and Project Tracker as proje
 - [x] Consistent 13px typography system
 - [x] Recent commits panel in expanded row
 - [x] Standalone repo — tracked as its own product
-- [ ] Auto-refresh (polling every N seconds)
+- [x] Auto-refresh (polling every N seconds)
 
 ---
 
 # PHASE 3 — Product Polish
 - [ ] Deploy as standalone web service
 - [ ] GitHub integration (open PR / issue counts)
-- [ ] Configure PROJECTS_ROOT via UI
-- [ ] Export project summary to markdown
+- [x] Configure PROJECTS_ROOT via UI
+- [x] Export project summary to markdown

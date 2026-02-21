@@ -70,6 +70,57 @@ h1 {
 }
 .controls button:hover { background: #1d4ed8; color: #fff; }
 
+.countdown {
+  font-size: 12px;
+  color: #475569;
+  min-width: 64px;
+}
+
+/* ── Root bar ─────────────────────────────────────── */
+.root-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 24px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  font-size: 12px;
+}
+
+.root-bar label {
+  color: #475569;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.root-input {
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #cbd5e1;
+  width: 380px;
+}
+.root-input::placeholder { color: #334155; }
+.root-input:focus { outline: none; border-color: #3b82f6; }
+
+.root-bar button {
+  font-size: 12px;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #2563eb;
+  background: #1e3a5f;
+  color: #93c5fd;
+  cursor: pointer;
+  font-weight: 600;
+}
+.root-bar button:hover { background: #1d4ed8; color: #fff; }
+
 /* ── Main / Table ─────────────────────────────────── */
 main { padding: 16px 24px; }
 

@@ -16,11 +16,14 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/api/projects", async (_req, res) => {
+app.get("/api/projects", async (req, res) => {
   try {
-    const projects = await scanProjects(PROJECTS_ROOT);
+    const root = req.query.root
+      ? path.resolve(req.query.root)
+      : PROJECTS_ROOT;
+    const projects = await scanProjects(root);
     res.json({
-      root: PROJECTS_ROOT,
+      root,
       scanned_at: new Date().toISOString(),
       projects
     });

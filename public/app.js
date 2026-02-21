@@ -4,6 +4,32 @@
   var elQ = document.getElementById("q");
   var elStatus = document.getElementById("status");
   var elRefresh = document.getElementById("refresh");
+  var elCountdown = document.getElementById("countdown");
+  var elRootInput = document.getElementById("root-input");
+  var elRootApply = document.getElementById("root-apply");
+
+  var STORAGE_KEY = "tracker_root";
+  var customRoot = localStorage.getItem(STORAGE_KEY) || "";
+  elRootInput.value = customRoot;
+
+  var AUTO_REFRESH_SEC = 30;
+  var countdownTimer = null;
+  var secondsLeft = AUTO_REFRESH_SEC;
+
+  function startCountdown() {
+    clearInterval(countdownTimer);
+    secondsLeft = AUTO_REFRESH_SEC;
+    elCountdown.textContent = "Next: " + secondsLeft + "s";
+    countdownTimer = setInterval(function () {
+      secondsLeft -= 1;
+      elCountdown.textContent = "Next: " + secondsLeft + "s";
+      if (secondsLeft <= 0) {
+        clearInterval(countdownTimer);
+        elCountdown.textContent = "Refreshing…";
+        load();
+      }
+    }, 1000);
+  }
 
   var all = [];
 
@@ -150,7 +176,9 @@
 
   function load() {
     elMeta.textContent = "Scanning…";
-    fetch("/api/projects")
+    elCountdown.textContent = "";
+    var url = "/api/projects" + (customRoot ? "?root=" + encodeURIComponent(customRoot) : "");
+    fetch(url)
       .then(function (r) { return r.json(); })
       .then(function (j) {
         all = j.projects || [];
@@ -160,15 +188,97 @@
           " | Projects: " + all.length +
           " | Last scan: " + scanned.toLocaleString();
         render();
+        startCountdown();
       })
       .catch(function (e) {
         elMeta.textContent = "Load error: " + String(e);
+        startCountdown();
       });
+  }
+
+  var elExport = document.getElementById("export");
+
+  var STATUS_ICON = { ready: "✓", blocked: "✗", "needs work": "~" };
+  var TASK_ICON_MD = { done: "✓", blocked: "✗", pending: "○" };
+
+  function exportMarkdown() {
+    var lines = [];
+    var now = new Date();
+    lines.push("# Project Summary");
+    lines.push("");
+    lines.push("_Exported: " + now.toLocaleString() + "_");
+    if (all.length) {
+      var meta = document.getElementById("meta").textContent;
+      var rootMatch = meta.match(/Root:\s*([^\|]+)/);
+      if (rootMatch) lines.push("_Root: " + rootMatch[1].trim() + "_");
+    }
+    lines.push("");
+    lines.push("---");
+
+    all.forEach(function (p) {
+      var m = p.metrics || {};
+      var icon = STATUS_ICON[p.status] || "~";
+      lines.push("");
+      lines.push("## " + icon + " " + p.title);
+      var statusLine = "**Status:** " + p.status;
+      if (m.progress_percent != null) {
+        statusLine += " | **Progress:** " + m.progress_percent + "% (" + m.done + "/" + (m.done + m.left) + " done)";
+      }
+      lines.push(statusLine);
+      if (p.current_task) lines.push("**Current task:** " + p.current_task);
+      if (p.description) lines.push("**Description:** " + p.description);
+
+      if (p.epics && p.epics.length) {
+        lines.push("");
+        p.epics.forEach(function (ep) {
+          var done = ep.tasks.filter(function (t) { return t.status === "done"; }).length;
+          lines.push("### " + ep.title + " (" + done + "/" + ep.tasks.length + ")");
+          ep.tasks.forEach(function (t) {
+            lines.push("- " + (TASK_ICON_MD[t.status] || "○") + " " + t.text);
+          });
+        });
+      }
+
+      if (p.recent_commits && p.recent_commits.length) {
+        lines.push("");
+        lines.push("### Recent commits");
+        p.recent_commits.slice(0, 5).forEach(function (c) {
+          lines.push("- `" + c.hash + "` " + c.date + " — " + c.subject);
+        });
+      }
+    });
+
+    var md = lines.join("\n");
+    var blob = new Blob([md], { type: "text/markdown" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "projects-" + now.toISOString().slice(0, 10) + ".md";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   elQ.addEventListener("input", render);
   elStatus.addEventListener("change", render);
-  elRefresh.addEventListener("click", load);
+  elRefresh.addEventListener("click", function () {
+    load();
+  });
+  elExport.addEventListener("click", exportMarkdown);
+
+  elRootApply.addEventListener("click", function () {
+    customRoot = elRootInput.value.trim();
+    if (customRoot) {
+      localStorage.setItem(STORAGE_KEY, customRoot);
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+    load();
+  });
+  elRootInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") elRootApply.click();
+  });
 
   load();
 })();
