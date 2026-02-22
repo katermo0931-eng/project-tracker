@@ -1,2 +1,5 @@
 node_modules/
 .vercel
+
+# Claude local settings
+.claude/settings.local.json

@@ -19,14 +19,20 @@ and displays progress, git history, and phase breakdowns. Runs at http://localho
 - Metrics are always auto-computed from checkboxes — no hardcoded numbers
 
 ## Restart requirements
-- CSS/JS changes: browser refresh only
-- `server.js` or `scan.js` changes: `npx kill-port 4319 && node server.js`
+- CSS/JS/HTML changes (`public/`): browser refresh only
+- Any server-side change (`server.js`, `scan.js`, `parseBacklog.js`, `parseReadme.js`): `npx kill-port 4319 && node /c/Users/Hola/project-tracker/server.js &`
 
 ## Design system
 Matches Interactive CV palette: slate-900/800/700 background, blue-400 accent, 13px base font.
 
 ## Deploy rule
-After completing any implementation task: commit the relevant files and push to main. Never leave completed work uncommitted. When changes also affect Interactive CV, push that repo too.
+After completing any implementation task: verify it works locally first, then commit the relevant files and push to main. Never push untested changes. When changes also affect Interactive CV, push that repo too — pushing Interactive CV to main triggers immediate Vercel live deploy.
+
+## Backlog hygiene
+- When a new task is agreed: add `- [ ] description` to `.claude/BACKLOG.md` under the right phase before starting work
+- When a task is completed: change `[ ]` → `[x]` in BACKLOG.md immediately after the implementation is done
+- Update `## Current` at the top to reflect the active phase
+- Mirror the change in `C:\Users\Hola\Interactive-CV\.claude\BACKLOG.md` if it applies there too
 
 ## What NOT to do
 - Don't add a build system or bundler — keep it vanilla
