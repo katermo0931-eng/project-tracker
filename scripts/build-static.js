@@ -66,7 +66,8 @@ ${css}
         <option value="all">All</option>
         <option value="blocked">Blocked</option>
         <option value="needs work">Needs work</option>
-        <option value="ready">Ready</option>
+        <option value="in progress">In progress</option>
+        <option value="complete">Complete</option>
       </select>
       <button id="refresh">Refresh</button>
       <button id="export">Export MD</button>
@@ -82,20 +83,22 @@ ${css}
   <div id="dashboard" class="dashboard"></div>
 
   <main>
-    <table>
-      <thead>
-        <tr>
-          <th>Project</th>
-          <th>Status</th>
-          <th>Done</th>
-          <th>Left</th>
-          <th>Progress</th>
-          <th>Current Task</th>
-          <th>Description / Missing</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Status</th>
+            <th>Done</th>
+            <th>Left</th>
+            <th>Progress</th>
+            <th>Current Task</th>
+            <th>Description / Missing</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
   </main>
 
   <script>

@@ -131,14 +131,21 @@ h1 {
 /* ── Main / Table ─────────────────────────────────── */
 main { padding: 16px 24px; }
 
+/* ── Table scroll wrapper ─────────────────────────── */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+}
+
 table {
   width: 100%;
+  min-width: 640px;
   border-collapse: collapse;
   background: #1e293b;
   border: 1px solid #334155;
   border-radius: 12px;
   overflow: hidden;
-  table-layout: fixed;
 }
 
 th, td {
@@ -176,9 +183,10 @@ tr:last-child td { border-bottom: none; }
   letter-spacing: .02em;
   border: 1px solid transparent;
 }
-.badge.ok      { background: rgba(74,222,128,.1);  color: #4ade80; border-color: rgba(74,222,128,.25); }
-.badge.warn    { background: rgba(251,191,36,.1);  color: #fbbf24; border-color: rgba(251,191,36,.25); }
-.badge.blocked { background: rgba(248,113,113,.1); color: #f87171; border-color: rgba(248,113,113,.25); }
+.badge.ok       { background: rgba(74,222,128,.1);  color: #4ade80; border-color: rgba(74,222,128,.25); }
+.badge.warn     { background: rgba(251,191,36,.1);  color: #fbbf24; border-color: rgba(251,191,36,.25); }
+.badge.blocked  { background: rgba(248,113,113,.1); color: #f87171; border-color: rgba(248,113,113,.25); }
+.badge.info     { background: rgba(96,165,250,.1);  color: #60a5fa; border-color: rgba(96,165,250,.25); }
 
 /* ── Numbers ──────────────────────────────────────── */
 td.num { color: #94a3b8; }
@@ -433,6 +441,48 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
 .gh-issue { background: rgba(251,191,36,.1);  color: #fbbf24; border-color: rgba(251,191,36,.25); }
 .gh-clean { background: rgba(96,165,250,.1);  color: #60a5fa; border-color: rgba(96,165,250,.25); }
 
+/* ── Mobile responsiveness ────────────────────────── */
+@media (max-width: 640px) {
+  .top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+  }
+
+  .controls {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .controls input {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .controls select,
+  .controls button {
+    flex: 1;
+  }
+
+  .countdown { display: none; }
+
+  /* Root bar is a desktop-only config field */
+  .root-bar { display: none; }
+
+  main { padding: 8px 12px; }
+
+  .dashboard { padding: 10px 12px; }
+
+  .dash-cards { gap: 8px; }
+
+  .dash-card { min-width: 100px; padding: 8px 12px; }
+
+  .epic-list { flex-direction: column; }
+
+  .epic { min-width: 0; }
+}
+
   </style>
   <style>
     /* static mode: hide server-dependent controls */
@@ -452,7 +502,8 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
         <option value="all">All</option>
         <option value="blocked">Blocked</option>
         <option value="needs work">Needs work</option>
-        <option value="ready">Ready</option>
+        <option value="in progress">In progress</option>
+        <option value="complete">Complete</option>
       </select>
       <button id="refresh">Refresh</button>
       <button id="export">Export MD</button>
@@ -468,20 +519,22 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
   <div id="dashboard" class="dashboard"></div>
 
   <main>
-    <table>
-      <thead>
-        <tr>
-          <th>Project</th>
-          <th>Status</th>
-          <th>Done</th>
-          <th>Left</th>
-          <th>Progress</th>
-          <th>Current Task</th>
-          <th>Description / Missing</th>
-        </tr>
-      </thead>
-      <tbody id="rows"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Status</th>
+            <th>Done</th>
+            <th>Left</th>
+            <th>Progress</th>
+            <th>Current Task</th>
+            <th>Description / Missing</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
   </main>
 
   <script>
@@ -489,7 +542,7 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
        Intercepts /api/* fetch calls and returns the snapshot
        baked in at build time. app.js is loaded unchanged.
     ─────────────────────────────────────────────────────── */
-    window.STATIC_DATA = {"root":"C:\\Users\\Hola","scanned_at":"2026-02-21T23:03:10.103Z","projects":[{"id":"Interactive-CV","folder":"C:\\Users\\Hola\\Interactive-CV","status":"ready","metrics":{"done":31,"left":0,"progress_percent":100},"current_task":"Phase 3: Content Layer — LinkedIn ingestion, auto-update pipeline","title":"Interactive CV","description":"An AI-powered, interactive single-page CV/resume with dark/light theme, scroll animations, and a built-in AI chat assistant that answers visitor questions about your background.","missing_files":[],"epics":[{"title":"PHASE 1 — AI Backend (Core Engine)","tasks":[{"status":"done","text":"Basic Express server"},{"status":"done","text":"Static CV serving"},{"status":"done","text":"POST /api/chat endpoint skeleton"},{"status":"done","text":"Environment variable loading (.env)"},{"status":"done","text":"Embeddings integration (OpenAI)"},{"status":"done","text":"CV content ingestion → vector store"},{"status":"done","text":"Retrieval (top-k chunks)"},{"status":"done","text":"Response grounding with citations"},{"status":"done","text":"Basic rate limiting"},{"status":"done","text":"Migrate to Next.js — API routes as Vercel serverless functions"}]},{"title":"PHASE 2 — Chat UI & CV Features","tasks":[{"status":"done","text":"Chat widget component"},{"status":"done","text":"Streaming responses"},{"status":"done","text":"Error handling in UI"},{"status":"done","text":"Conversation memory (per session)"},{"status":"done","text":"PDF download — real CV file served from /public"},{"status":"done","text":"LinkedIn recommendations — AI system prompt enrichment (8 colleague quotes)"},{"status":"done","text":"LinkedIn recommendations — rotating quote bar (fades every 5s)"},{"status":"done","text":"LinkedIn recommendations — Colleagues Say section with portrait cards & filter chips"},{"status":"done","text":"LinkedIn branded button in header (alongside Download CV)"}]},{"title":"PHASE 3 — Content Layer","tasks":[{"status":"done","text":"LinkedIn profile ingestion — scripts/import-linkedin.js diffs LinkedIn export CSVs against cv-data.json, --update merges"},{"status":"done","text":"PDF CV parsing — scripts/parse-pdf.js extracts text, diffs against cv-data.json, 2 new bullets added"},{"status":"done","text":"JSON structured experience format — CV_DATA extracted to data/cv-data.json"},{"status":"done","text":"Questions section — 5 categories, 15 prompts, scroll-to-chat on click"},{"status":"done","text":"Auto-update content pipeline — scripts/update.js; npm run update / update:push"}]},{"title":"PHASE 4 — Deploy & Infra","tasks":[{"status":"done","text":"Deploy backend (Render / Railway) — superseded; backend runs as Vercel serverless functions (see Phase 1)"},{"status":"done","text":"Deploy frontend (Vercel)"},{"status":"done","text":"Add logging — structured JSON logs in /api/chat (reqId, latency, token usage) via Vercel log drains"},{"status":"done","text":"Add monitoring — /api/health endpoint + Vercel Analytics (@vercel/analytics)"}]},{"title":"PHASE 5 — Meta Tools","tasks":[{"status":"done","text":"GitHub PR/Issues aggregation — /api/github-stats endpoint; eager-loaded badges (open PRs, issues) in project title row; scan.js detects GitHub remote per project"},{"status":"done","text":"Tracker integration improvements — clickable commit hashes link to GitHub; ghCache cleared on full reload; export MD includes GitHub URL"},{"status":"done","text":"Project health dashboard — summary bar: total projects, tasks done/total, overall % progress bar, status breakdown badges, latest activity strip"}]}],"recent_commits":[{"hash":"e37aa5b","date":"2026-02-22","subject":"chore: mark Phase 5 complete in BACKLOG"},{"hash":"12af012","date":"2026-02-21","subject":"feat: enhance /api/health monitoring endpoint"},{"hash":"ed03a98","date":"2026-02-21","subject":"feat: add logging and monitoring (Phase 4 complete)"},{"hash":"fdaa2b1","date":"2026-02-21","subject":"Inject pre-written Q&A into AI system prompt"},{"hash":"47c8a23","date":"2026-02-21","subject":"Polish language in pre-written Q&A answers"},{"hash":"21a94a2","date":"2026-02-21","subject":"feat: add auto-update content pipeline (scripts/update.js)"},{"hash":"06f437d","date":"2026-02-21","subject":"Add Languages.csv support to LinkedIn import script"},{"hash":"02a4c4a","date":"2026-02-21","subject":"Rewrite all 15 answers in clean declarative prose matching CV tone"},{"hash":"194ffab","date":"2026-02-21","subject":"Clean all pre-written answers: remove quoted words, standardise British English"},{"hash":"13c90dc","date":"2026-02-21","subject":"Add pre-written answers for all 15 question chips; render markdown in chat"},{"hash":"f74d26c","date":"2026-02-21","subject":"Add LinkedIn export ingestion script"},{"hash":"6193fef","date":"2026-02-21","subject":"Inject cv-data.json into AI system prompt"},{"hash":"add3c62","date":"2026-02-21","subject":"Strengthen no-markdown instruction in system prompt"},{"hash":"b3e1071","date":"2026-02-21","subject":"Render markdown in chat responses; reduce formatting noise in prompts"},{"hash":"f85b993","date":"2026-02-21","subject":"Test Vercel webhook connection"},{"hash":"5280d59","date":"2026-02-21","subject":"Add PDF parse script, update CV data and backlog"},{"hash":"8646f34","date":"2026-02-21","subject":"Rename question category labels to executive interview framing"},{"hash":"2b3c8ae","date":"2026-02-21","subject":"Revise question set to interview-style third-person voice"},{"hash":"545ab19","date":"2026-02-21","subject":"Add Questions section and extract CV data to JSON"},{"hash":"55080aa","date":"2026-02-21","subject":"Auto-populate tracker with git commit history"}],"github_repo":{"owner":"katermo0931-eng","repo":"Interactive-CV"}},{"id":"project-tracker","folder":"C:\\Users\\Hola\\project-tracker","status":"ready","metrics":{"done":22,"left":0,"progress_percent":100},"current_task":"Phase 4 complete — dashboard, GitHub integration, commit links","title":"Project Tracker","description":"A lightweight local web dashboard for tracking personal development projects — built to replace spreadsheets and sticky notes with a single live view of progress, phases, and git activity.","missing_files":[],"epics":[{"title":"PHASE 1 — Core Engine","tasks":[{"status":"done","text":"Express server with static file serving"},{"status":"done","text":"Project directory scanning (top-level dirs under PROJECTS_ROOT)"},{"status":"done","text":"BACKLOG.md parser — task checkboxes → auto-computed progress metrics"},{"status":"done","text":"README.md parser — extract title and description"},{"status":"done","text":"Git log integration — recent commits via execFile (no shell dependency)"},{"status":"done","text":"Consistent metrics: no hardcoded numbers, live from file"}]},{"title":"PHASE 2 — UI & Design","tasks":[{"status":"done","text":"Filterable project list (search + status filter)"},{"status":"done","text":"Expandable epic/phase breakdown per project"},{"status":"done","text":"Progress bar with gradient fill"},{"status":"done","text":"Dark theme — slate-900/800/700 + blue-400 palette"},{"status":"done","text":"Consistent 13px typography system"},{"status":"done","text":"Recent commits panel in expanded row"},{"status":"done","text":"Standalone repo — tracked as its own product"},{"status":"done","text":"Auto-refresh (polling every N seconds)"}]},{"title":"PHASE 3 — Product Polish","tasks":[{"status":"done","text":"Deploy as standalone web service — Dockerfile, render.yaml, npm start"},{"status":"done","text":"GitHub integration (open PR / issue counts) — auto-detect git remote, /api/github-stats, live badges in title cell"},{"status":"done","text":"Configure PROJECTS_ROOT via UI"},{"status":"done","text":"Export project summary to markdown"}]},{"title":"PHASE 4 — Dashboard & Integrations","tasks":[{"status":"done","text":"Project health dashboard — summary bar: total projects, tasks done/total, overall % progress bar, by-status breakdown, latest activity strip"},{"status":"done","text":"Clickable commit hashes — link to GitHub commit URL when remote is detected"},{"status":"done","text":"ghCache cleared on full reload — no stale GitHub stats after manual refresh"},{"status":"done","text":"Export MD includes GitHub repo URL per project"}]}],"recent_commits":[{"hash":"e88c11e","date":"2026-02-22","subject":"chore: update BACKLOG with Phase 4 completed tasks"},{"hash":"d2ae929","date":"2026-02-22","subject":"feat: Phase 5 — dashboard, GitHub integration, tracker improvements"},{"hash":"b74aa10","date":"2026-02-21","subject":"feat: GitHub PR/issue badges + deploy config"},{"hash":"059740e","date":"2026-02-21","subject":"feat: export to markdown + configure PROJECTS_ROOT via UI"},{"hash":"62d6c8a","date":"2026-02-21","subject":"Initial release — standalone project tracker"}],"github_repo":{"owner":"katermo0931-eng","repo":"project-tracker"}}]};
+    window.STATIC_DATA = {"root":"C:/Users/Hola","scanned_at":"2026-02-22T11:54:05.006Z","projects":[{"id":"Interactive-CV","folder":"C:\\Users\\Hola\\Interactive-CV","status":"in progress","metrics":{"done":31,"left":8,"progress_percent":79},"current_task":"Phase 6: Mobile Responsiveness — audit and adapt both projects for small screens","title":"Interactive CV","description":"An AI-powered, interactive single-page CV/resume with dark/light theme, scroll animations, and a built-in AI chat assistant that answers visitor questions about your background.","missing_files":[],"epics":[{"title":"PHASE 1 — AI Backend (Core Engine)","tasks":[{"status":"done","text":"Basic Express server"},{"status":"done","text":"Static CV serving"},{"status":"done","text":"POST /api/chat endpoint skeleton"},{"status":"done","text":"Environment variable loading (.env)"},{"status":"done","text":"Embeddings integration (OpenAI)"},{"status":"done","text":"CV content ingestion → vector store"},{"status":"done","text":"Retrieval (top-k chunks)"},{"status":"done","text":"Response grounding with citations"},{"status":"done","text":"Basic rate limiting"},{"status":"done","text":"Migrate to Next.js — API routes as Vercel serverless functions"}]},{"title":"PHASE 2 — Chat UI & CV Features","tasks":[{"status":"done","text":"Chat widget component"},{"status":"done","text":"Streaming responses"},{"status":"done","text":"Error handling in UI"},{"status":"done","text":"Conversation memory (per session)"},{"status":"done","text":"PDF download — real CV file served from /public"},{"status":"done","text":"LinkedIn recommendations — AI system prompt enrichment (8 colleague quotes)"},{"status":"done","text":"LinkedIn recommendations — rotating quote bar (fades every 5s)"},{"status":"done","text":"LinkedIn recommendations — Colleagues Say section with portrait cards & filter chips"},{"status":"done","text":"LinkedIn branded button in header (alongside Download CV)"}]},{"title":"PHASE 3 — Content Layer","tasks":[{"status":"done","text":"LinkedIn profile ingestion — scripts/import-linkedin.js diffs LinkedIn export CSVs against cv-data.json, --update merges"},{"status":"done","text":"PDF CV parsing — scripts/parse-pdf.js extracts text, diffs against cv-data.json, 2 new bullets added"},{"status":"done","text":"JSON structured experience format — CV_DATA extracted to data/cv-data.json"},{"status":"done","text":"Questions section — 5 categories, 15 prompts, scroll-to-chat on click"},{"status":"done","text":"Auto-update content pipeline — scripts/update.js; npm run update / update:push"}]},{"title":"PHASE 4 — Deploy & Infra","tasks":[{"status":"done","text":"Deploy backend (Render / Railway) — superseded; backend runs as Vercel serverless functions (see Phase 1)"},{"status":"done","text":"Deploy frontend (Vercel)"},{"status":"done","text":"Add logging — structured JSON logs in /api/chat (reqId, latency, token usage) via Vercel log drains"},{"status":"done","text":"Add monitoring — /api/health endpoint + Vercel Analytics (@vercel/analytics)"}]},{"title":"PHASE 5 — Meta Tools","tasks":[{"status":"done","text":"GitHub PR/Issues aggregation — /api/github-stats endpoint; eager-loaded badges (open PRs, issues) in project title row; scan.js detects GitHub remote per project"},{"status":"done","text":"Tracker integration improvements — clickable commit hashes link to GitHub; ghCache cleared on full reload; export MD includes GitHub URL"},{"status":"done","text":"Project health dashboard — summary bar: total projects, tasks done/total, overall % progress bar, status breakdown badges, latest activity strip"}]},{"title":"PHASE 6 — Mobile Responsiveness","tasks":[{"status":"pending","text":"Audit current layout — identify sections that break below 640px"},{"status":"pending","text":"Responsive header — stack Download CV / LinkedIn buttons on small screens"},{"status":"pending","text":"Responsive hero section — adjust font sizes and spacing for mobile"},{"status":"pending","text":"Responsive experience cards — full-width stack on mobile"},{"status":"pending","text":"Responsive chat widget — full-screen overlay on mobile, sticky input bar"},{"status":"pending","text":"Responsive \"Colleagues Say\" section — single-column cards on mobile"},{"status":"pending","text":"Touch-friendly question prompts — larger tap targets"},{"status":"pending","text":"Cross-device QA — Chrome DevTools + real device check"}]}],"recent_commits":[{"hash":"7042560","date":"2026-02-22","subject":"fix: allow question chips to wrap on mobile"},{"hash":"c4dfa31","date":"2026-02-22","subject":"chore: remove stale tools/project-tracker copy"},{"hash":"e37aa5b","date":"2026-02-22","subject":"chore: mark Phase 5 complete in BACKLOG"},{"hash":"12af012","date":"2026-02-21","subject":"feat: enhance /api/health monitoring endpoint"},{"hash":"ed03a98","date":"2026-02-21","subject":"feat: add logging and monitoring (Phase 4 complete)"},{"hash":"fdaa2b1","date":"2026-02-21","subject":"Inject pre-written Q&A into AI system prompt"},{"hash":"47c8a23","date":"2026-02-21","subject":"Polish language in pre-written Q&A answers"},{"hash":"21a94a2","date":"2026-02-21","subject":"feat: add auto-update content pipeline (scripts/update.js)"},{"hash":"06f437d","date":"2026-02-21","subject":"Add Languages.csv support to LinkedIn import script"},{"hash":"02a4c4a","date":"2026-02-21","subject":"Rewrite all 15 answers in clean declarative prose matching CV tone"},{"hash":"194ffab","date":"2026-02-21","subject":"Clean all pre-written answers: remove quoted words, standardise British English"},{"hash":"13c90dc","date":"2026-02-21","subject":"Add pre-written answers for all 15 question chips; render markdown in chat"},{"hash":"f74d26c","date":"2026-02-21","subject":"Add LinkedIn export ingestion script"},{"hash":"6193fef","date":"2026-02-21","subject":"Inject cv-data.json into AI system prompt"},{"hash":"add3c62","date":"2026-02-21","subject":"Strengthen no-markdown instruction in system prompt"},{"hash":"b3e1071","date":"2026-02-21","subject":"Render markdown in chat responses; reduce formatting noise in prompts"},{"hash":"f85b993","date":"2026-02-21","subject":"Test Vercel webhook connection"},{"hash":"5280d59","date":"2026-02-21","subject":"Add PDF parse script, update CV data and backlog"},{"hash":"8646f34","date":"2026-02-21","subject":"Rename question category labels to executive interview framing"},{"hash":"2b3c8ae","date":"2026-02-21","subject":"Revise question set to interview-style third-person voice"}],"github_repo":{"owner":"katermo0931-eng","repo":"Interactive-CV"}},{"id":"project-tracker","folder":"C:\\Users\\Hola\\project-tracker","status":"in progress","metrics":{"done":25,"left":9,"progress_percent":74},"current_task":"Phase 6: Mobile Responsiveness — audit and adapt dashboard for small screens","title":"Project Tracker","description":"A lightweight local web dashboard for tracking personal development projects — built to replace spreadsheets and sticky notes with a single live view of progress, phases, and git activity.","missing_files":[],"epics":[{"title":"PHASE 1 — Core Engine","tasks":[{"status":"done","text":"Express server with static file serving"},{"status":"done","text":"Project directory scanning (top-level dirs under PROJECTS_ROOT)"},{"status":"done","text":"BACKLOG.md parser — task checkboxes → auto-computed progress metrics"},{"status":"done","text":"README.md parser — extract title and description"},{"status":"done","text":"Git log integration — recent commits via execFile (no shell dependency)"},{"status":"done","text":"Consistent metrics: no hardcoded numbers, live from file"}]},{"title":"PHASE 2 — UI & Design","tasks":[{"status":"done","text":"Filterable project list (search + status filter)"},{"status":"done","text":"Expandable epic/phase breakdown per project"},{"status":"done","text":"Progress bar with gradient fill"},{"status":"done","text":"Dark theme — slate-900/800/700 + blue-400 palette"},{"status":"done","text":"Consistent 13px typography system"},{"status":"done","text":"Recent commits panel in expanded row"},{"status":"done","text":"Standalone repo — tracked as its own product"},{"status":"done","text":"Auto-refresh (polling every N seconds)"}]},{"title":"PHASE 3 — Product Polish","tasks":[{"status":"done","text":"Deploy as standalone web service — Dockerfile, render.yaml, npm start"},{"status":"done","text":"GitHub integration (open PR / issue counts) — auto-detect git remote, /api/github-stats, live badges in title cell"},{"status":"done","text":"Configure PROJECTS_ROOT via UI"},{"status":"done","text":"Export project summary to markdown"}]},{"title":"PHASE 4 — Dashboard & Integrations","tasks":[{"status":"done","text":"Project health dashboard — summary bar: total projects, tasks done/total, overall % progress bar, by-status breakdown, latest activity strip"},{"status":"done","text":"Clickable commit hashes — link to GitHub commit URL when remote is detected"},{"status":"done","text":"ghCache cleared on full reload — no stale GitHub stats after manual refresh"},{"status":"done","text":"Export MD includes GitHub repo URL per project"}]},{"title":"PHASE 5 — Static Deploy & CI","tasks":[{"status":"done","text":"build-static.js — self-contained output/index.html with fetch shim (GitHub API disabled in static mode)"},{"status":"done","text":"npm run export / export:push — local snapshot workflow"},{"status":"done","text":"vercel.json — outputDirectory: output (Vercel-ready)"},{"status":"pending","text":"GitHub Actions workflow — checkout all tracked repos, build snapshot, deploy to GitHub Pages on every push to main"},{"status":"pending","text":"Enable GitHub Pages on repo (Settings → Pages → GitHub Actions source)"}]},{"title":"PHASE 6 — Mobile Responsiveness","tasks":[{"status":"pending","text":"Audit current layout — identify columns/panels that break below 640px"},{"status":"pending","text":"Responsive summary bar — stack metrics vertically on small screens"},{"status":"pending","text":"Responsive project list — full-width rows, hide secondary columns on mobile"},{"status":"pending","text":"Touch-friendly expand/collapse for project rows — larger tap targets"},{"status":"pending","text":"Responsive epic breakdown panel — readable on narrow viewports"},{"status":"pending","text":"Responsive search and filter controls — stack/wrap on mobile"},{"status":"pending","text":"Cross-device QA — Chrome DevTools + real device check"}]}],"recent_commits":[{"hash":"c314892","date":"2026-02-22","subject":"fix: make project tracker mobile-responsive"},{"hash":"bef5eba","date":"2026-02-22","subject":"ci: GitHub Pages auto-deploy on push to main"},{"hash":"879d059","date":"2026-02-22","subject":"chore: ignore .vercel dir"},{"hash":"129ae21","date":"2026-02-22","subject":"feat: Phase 5 — GitHub Actions static snapshot → GitHub Pages"},{"hash":"647a3fd","date":"2026-02-22","subject":"fix: vercel.json — static site, no framework, no build command"},{"hash":"877c82b","date":"2026-02-22","subject":"fix: remove BOM from package.json"},{"hash":"7c702dc","date":"2026-02-22","subject":"feat: static HTML export for Vercel deploy"},{"hash":"e88c11e","date":"2026-02-22","subject":"chore: update BACKLOG with Phase 4 completed tasks"},{"hash":"d2ae929","date":"2026-02-22","subject":"feat: Phase 5 — dashboard, GitHub integration, tracker improvements"},{"hash":"b74aa10","date":"2026-02-21","subject":"feat: GitHub PR/issue badges + deploy config"},{"hash":"059740e","date":"2026-02-21","subject":"feat: export to markdown + configure PROJECTS_ROOT via UI"},{"hash":"62d6c8a","date":"2026-02-21","subject":"Initial release — standalone project tracker"}],"github_repo":{"owner":"katermo0931-eng","repo":"project-tracker"}}]};
     (function () {
       var _fetch = window.fetch;
       window.fetch = function (url) {
@@ -569,14 +622,15 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
     var elDash = document.getElementById("dashboard");
     if (!elDash) return;
     var total = projects.length;
-    var blocked = 0, needsWork = 0, ready = 0;
+    var blocked = 0, needsWork = 0, inProgress = 0, complete = 0;
     var totalDone = 0, totalLeft = 0;
     var allCommits = [];
 
     projects.forEach(function (p) {
-      if      (p.status === "blocked")    blocked++;
-      else if (p.status === "needs work") needsWork++;
-      else if (p.status === "ready")      ready++;
+      if      (p.status === "blocked")     blocked++;
+      else if (p.status === "needs work")  needsWork++;
+      else if (p.status === "in progress") inProgress++;
+      else if (p.status === "complete")    complete++;
       if (p.metrics) { totalDone += p.metrics.done || 0; totalLeft += p.metrics.left || 0; }
       var c = p.recent_commits && p.recent_commits[0];
       if (c) allCommits.push({ project: p.title, hash: c.hash, date: c.date, subject: c.subject });
@@ -604,9 +658,10 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
         "</div>" +
         "<div class=\"dash-card\">" +
           "<div class=\"dash-status-row\">" +
-            "<span class=\"badge blocked\">" + blocked + " blocked</span>" +
-            "<span class=\"badge warn\">"    + needsWork + " needs work</span>" +
-            "<span class=\"badge ok\">"      + ready     + " ready</span>" +
+            "<span class=\"badge blocked\">" + blocked    + " blocked</span>" +
+            "<span class=\"badge warn\">"    + needsWork  + " needs work</span>" +
+            "<span class=\"badge info\">"    + inProgress + " in progress</span>" +
+            "<span class=\"badge ok\">"      + complete   + " complete</span>" +
           "</div>" +
           "<div class=\"dash-lbl\">By status</div>" +
         "</div>" +
@@ -764,7 +819,7 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
             "</div>" +
             "<div class=\"folder\">" + esc(p.folder) + "</div>" +
           "</td>" +
-          "<td><span class=\"badge " + (p.status === "ready" ? "ok" : p.status === "blocked" ? "blocked" : "warn") + "\">" + esc(p.status) + "</span></td>" +
+          "<td><span class=\"badge " + (p.status === "complete" ? "ok" : p.status === "blocked" ? "blocked" : p.status === "in progress" ? "info" : "warn") + "\">" + esc(p.status) + "</span></td>" +
           "<td class=\"num\">" + done + "</td>" +
           "<td class=\"num\">" + left + "</td>" +
           "<td>" + progHtml + "</td>" +
@@ -836,7 +891,7 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
 
   var elExport = document.getElementById("export");
 
-  var STATUS_ICON = { ready: "✓", blocked: "✗", "needs work": "~" };
+  var STATUS_ICON = { complete: "✓", blocked: "✗", "needs work": "~", "in progress": "→" };
   var TASK_ICON_MD = { done: "✓", blocked: "✗", pending: "○" };
 
   function exportMarkdown() {
