@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "export": "node scripts/build-static.js",
-    "export:push": "node scripts/build-static.js && git add output/ && git commit -m \"chore: update snapshot\" && git push"
+    "export": "node scripts/build-static.js"
   },
   "dependencies": {
     "express": "^4.19.2"

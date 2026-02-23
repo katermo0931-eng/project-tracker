@@ -46,7 +46,7 @@ Phase 7: Product Identity & PM Insights — rename, ideas visibility, complexity
 # PHASE 5 — Static Deploy & CI
 - [x] build-static.js — self-contained output/index.html with fetch shim (GitHub API disabled in static mode)
 - [x] npm run export / export:push — local snapshot workflow
-- [x] vercel.json — outputDirectory: output (Vercel-ready)
+- [x] vercel.json — outputDirectory: output (Vercel — retired in favour of GitHub Pages)
 - [x] GitHub Actions workflow — checkout all tracked repos, build snapshot, deploy to GitHub Pages on every push to main
 - [x] Enable GitHub Pages on repo (Settings → Pages → GitHub Actions source)
 
@@ -64,7 +64,7 @@ Phase 7: Product Identity & PM Insights — rename, ideas visibility, complexity
 ---
 
 # PHASE 7 — Product Identity & PM Insights
-- [ ] Rename dashboard — replace "Project Tracker" with a confident, personal product name
+- [x] Rename dashboard — "Meridian" (title, h1, package.json, README, server log, User-Agent)
 - [ ] Ideas tab — render IDEAS.md inside the dashboard so all ideas are visible at localhost:4319 without opening a file
 - [ ] Idea count badge — pull count of ideas from IDEAS.md and show in header or project row
 - [ ] Complexity column — add initial estimate vs actual time/resource fact-check column per task (PM insight feature)
