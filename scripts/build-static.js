@@ -44,7 +44,7 @@ const html = `<!doctype html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Project Tracker — Snapshot</title>
+  <title>Meridian — Snapshot</title>
   <style>
 ${css}
   </style>
@@ -56,7 +56,7 @@ ${css}
 <body>
   <header class="top">
     <div>
-      <h1>Project Tracker</h1>
+      <h1>Meridian</h1>
       <div class="meta" id="meta"></div>
     </div>
 

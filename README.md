@@ -1,6 +1,6 @@
-# Project Tracker
+# Meridian
 
-A lightweight local web dashboard for tracking personal development projects — built to replace spreadsheets and sticky notes with a single live view of progress, phases, and git activity.
+A lightweight local web dashboard for tracking personal development projects — your fixed reference point across all active work. Replaces spreadsheets and sticky notes with a single live view of progress, phases, and git activity.
 
 ## What it does
 

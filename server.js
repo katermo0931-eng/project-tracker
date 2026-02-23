@@ -40,7 +40,7 @@ app.get("/api/github-stats", async (req, res) => {
   const token = process.env.GITHUB_TOKEN;
   const headers = {
     "Accept": "application/vnd.github+json",
-    "User-Agent": "project-tracker/1.0",
+    "User-Agent": "meridian/1.0",
     ...(token ? { "Authorization": `Bearer ${token}` } : {})
   };
 
@@ -74,6 +74,6 @@ app.get("/api/github-stats", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Project Tracker running: http://127.0.0.1:${PORT}`);
+  console.log(`Meridian running: http://127.0.0.1:${PORT}`);
   console.log(`PROJECTS_ROOT = ${PROJECTS_ROOT}`);
 });
