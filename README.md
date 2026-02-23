@@ -1,8 +1,8 @@
 # Meridian
 
-**Live:** https://katermo0931-eng.github.io/meridian/
+Cross-project dev dashboard — live progress from BACKLOG.md checkboxes, GitHub PR/issue badges, git history per project, health summary, and export to MD. No manual updates.
 
-A lightweight local web dashboard for tracking personal development projects — your fixed reference point across all active work. Replaces spreadsheets and sticky notes with a single live view of progress, phases, and git activity.
+**Live:** https://katermo0931-eng.github.io/meridian/
 
 ## What it does
 
@@ -10,7 +10,10 @@ A lightweight local web dashboard for tracking personal development projects —
 - Auto-computes progress from `[x]` / `[ ]` task checkboxes — no hardcoded numbers
 - Pulls live git commit history per project without manual updates
 - Displays phase-by-phase task breakdown with expandable epics
-- Filters by project status (ready / blocked / needs work) and free-text search
+- Shows GitHub PR/issue counts as live badges per project
+- Health summary dashboard — overall progress %, by-status breakdown, latest activity
+- Filters by project status and free-text search
+- Exports project summary to markdown
 
 ## Stack
 

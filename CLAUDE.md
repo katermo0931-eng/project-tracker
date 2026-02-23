@@ -1,8 +1,9 @@
-# Project Tracker — Claude Instructions
+# Meridian — Claude Instructions
 
 ## What this is
 A standalone local web dashboard (Node/Express, vanilla JS) that scans sibling project repos
-and displays progress, git history, and phase breakdowns. Runs at http://localhost:4319.
+and displays progress metrics, GitHub PR/issue badges, git history, health summary, and phase
+breakdowns. Runs at http://localhost:4319. Live at https://katermo0931-eng.github.io/meridian/
 
 ## Architecture
 - `server.js` — Express server, routes, static serving
