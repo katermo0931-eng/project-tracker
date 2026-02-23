@@ -8,6 +8,13 @@
   var elRootInput = document.getElementById("root-input");
   var elRootApply = document.getElementById("root-apply");
 
+  // Extra per-project action links: keyed by folder basename
+  var PROJECT_LINKS = {
+    "Interactive-CV": [
+      { label: "in", url: "https://www.linkedin.com/in/ekacherkasova", cls: "li-badge" }
+    ]
+  };
+
   var STORAGE_KEY = "tracker_root";
   var customRoot = localStorage.getItem(STORAGE_KEY) || "";
   elRootInput.value = customRoot;
@@ -244,6 +251,11 @@
       var commitsHtml = renderCommits(p.recent_commits, p.github_repo);
       var rowId = "erow-" + i;
 
+      var folderKey = (p.folder || "").replace(/\\/g, "/").split("/").filter(Boolean).pop() || "";
+      var extraLinks = (PROJECT_LINKS[folderKey] || []).map(function (lk) {
+        return "<a class=\"gh-badge " + esc(lk.cls) + "\" href=\"" + esc(lk.url) + "\" target=\"_blank\" rel=\"noopener\" onclick=\"event.stopPropagation()\">" + esc(lk.label) + "</a>";
+      }).join("");
+
       return (
         "<tr class=\"proj-row\" data-epic-target=\"" + rowId + "\">" +
           "<td class=\"proj\">" +
@@ -251,6 +263,7 @@
               ((epicHtml || commitsHtml) ? "<span class=\"expand-icon\">▶</span> " : "") +
               esc(p.title) +
               (p.github_repo ? " <span class=\"gh-badges\" id=\"gh-" + esc(p.github_repo.owner) + "-" + esc(p.github_repo.repo) + "\">…</span>" : "") +
+              (extraLinks ? " " + extraLinks : "") +
             "</div>" +
             "<div class=\"folder\">" + esc(p.folder) + "</div>" +
           "</td>" +
