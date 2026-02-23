@@ -7,6 +7,95 @@
   var elCountdown = document.getElementById("countdown");
   var elRootInput = document.getElementById("root-input");
   var elRootApply = document.getElementById("root-apply");
+  var elTabProjects = document.getElementById("tab-projects");
+  var elTabIdeas = document.getElementById("tab-ideas");
+  var elMain = document.querySelector("main");
+  var elDashboard = document.getElementById("dashboard");
+  var elIdeasPanel = document.getElementById("ideas-panel");
+  var elIdeaCount = document.getElementById("idea-count");
+
+  // ── Tab switching ──────────────────────────────────
+
+  function switchTab(tab) {
+    elTabProjects.classList.toggle("active", tab === "projects");
+    elTabIdeas.classList.toggle("active", tab === "ideas");
+    elMain.style.display = tab === "projects" ? "" : "none";
+    if (elDashboard) elDashboard.style.display = tab === "projects" ? "" : "none";
+    elIdeasPanel.style.display = tab === "ideas" ? "" : "none";
+    if (tab === "ideas") renderIdeasPanel();
+  }
+
+  elTabProjects.addEventListener("click", function () { switchTab("projects"); });
+  elTabIdeas.addEventListener("click", function () { switchTab("ideas"); });
+
+  // ── Ideas ──────────────────────────────────────────
+
+  var ideasData = null;
+
+  function fetchIdeas() {
+    fetch("/api/ideas")
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        ideasData = data;
+        if (data.idea_count > 0 && elIdeaCount) {
+          elIdeaCount.textContent = data.idea_count;
+          elIdeaCount.style.display = "";
+        }
+      })
+      .catch(function () {});
+  }
+
+  function inlineMd(raw) {
+    return raw
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/`([^`]+)`/g, "<code class=\"ideas-code\">$1</code>");
+  }
+
+  function renderIdeasMd(md) {
+    if (!md) return "<p class=\"ideas-empty\">No ideas file found.</p>";
+    var lines = md.split(/\r?\n/);
+    var out = [];
+    lines.forEach(function (line) {
+      if (/^# /.test(line)) {
+        // skip top-level title (just "Ideas Inbox")
+      } else if (/^## /.test(line)) {
+        out.push("<h2 class=\"ideas-h2\">" + inlineMd(line.replace(/^## /, "")) + "</h2>");
+      } else if (/^### /.test(line)) {
+        out.push("<h3 class=\"ideas-h3\">" + inlineMd(line.replace(/^### /, "")) + "</h3>");
+      } else if (/^-{3,}$/.test(line.trim())) {
+        out.push("<hr class=\"ideas-hr\"/>");
+      } else if (/\*\*Status:\*\*/.test(line)) {
+        var m = line.match(/\*\*Status:\*\*\s*(.+)/);
+        if (m) {
+          var val = m[1].trim();
+          var cls = /^(done|addressed|complete|retired)/i.test(val) ? "idea-done"
+                  : /^idea$/i.test(val) ? "idea-active"
+                  : "idea-other";
+          out.push("<p class=\"ideas-status\"><span class=\"ideas-status-label\">Status</span><span class=\"idea-badge " + cls + "\">" + inlineMd(val) + "</span></p>");
+        }
+      } else if (line.trim() === "" || /^_Add new ideas/.test(line)) {
+        // skip
+      } else {
+        out.push("<p class=\"ideas-p\">" + inlineMd(line) + "</p>");
+      }
+    });
+    return out.join("\n");
+  }
+
+  function renderIdeasPanel() {
+    var el = document.getElementById("ideas-content");
+    if (!el) return;
+    if (!ideasData) {
+      el.innerHTML = "<p class=\"ideas-empty\">Ideas not available.</p>";
+      return;
+    }
+    if (ideasData.error && !ideasData.content) {
+      el.innerHTML = "<p class=\"ideas-empty\">Ideas file not available in this environment.</p>";
+      return;
+    }
+    el.innerHTML = renderIdeasMd(ideasData.content);
+  }
 
   // Extra per-project action links: keyed by folder basename
   var PROJECT_LINKS = {
@@ -153,8 +242,11 @@
       var tasksId = "etasks-" + rowIdx + "-" + ei;
       var tasks = ep.tasks.map(function (t) {
         var st = t.status || "pending";
+        var estHtml   = t.estimate ? "<span class=\"comp-est\">"    + esc(t.estimate) + "</span>" : "";
+        var actHtml   = t.actual   ? "<span class=\"comp-actual\">→ " + esc(t.actual)   + "</span>" : "";
+        var chipsHtml = (estHtml || actHtml) ? "<span class=\"comp-chips\">" + estHtml + actHtml + "</span>" : "";
         return "<div class=\"task " + st + "\">" +
-          (TASK_ICON[st] || "○") + " " + esc(t.text) +
+          (TASK_ICON[st] || "○") + " " + esc(t.text) + chipsHtml +
         "</div>";
       }).join("");
       return "<div class=\"epic status-" + cls + "\">" +
@@ -422,4 +514,5 @@
   });
 
   load();
+  fetchIdeas();
 })();

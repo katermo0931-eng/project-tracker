@@ -1,4 +1,14 @@
 ﻿
+function extractComplexity(text) {
+  const estMatch    = text.match(/\[est:([^\]]+)\]/i);
+  const actualMatch = text.match(/\[actual:([^\]]+)\]/i);
+  return {
+    text:     text.replace(/\[(est|actual):[^\]]+\]/gi, "").trim(),
+    estimate: estMatch    ? estMatch[1].trim()    : null,
+    actual:   actualMatch ? actualMatch[1].trim() : null
+  };
+}
+
 export function parseEpics(md) {
   const lines = md.replace(/^\uFEFF/, "").split(/\r?\n/);
   const epics = [];
@@ -15,11 +25,11 @@ export function parseEpics(md) {
     if (/^##/.test(line)) { current = null; continue; }
     if (!current) continue;
     const dm = line.match(/^[-*]\s+\[x\]\s+(.+)$/i);
-    if (dm) { current.tasks.push({ status: "done", text: dm[1].trim() }); continue; }
+    if (dm) { const c = extractComplexity(dm[1].trim()); current.tasks.push({ status: "done",    text: c.text, estimate: c.estimate, actual: c.actual }); continue; }
     const bm = line.match(/^[-*]\s+\[!\]\s+(.+)$/);
-    if (bm) { current.tasks.push({ status: "blocked", text: bm[1].trim() }); continue; }
+    if (bm) { const c = extractComplexity(bm[1].trim()); current.tasks.push({ status: "blocked", text: c.text, estimate: c.estimate, actual: c.actual }); continue; }
     const pm = line.match(/^[-*]\s+\[ \]\s+(.+)$/);
-    if (pm) { current.tasks.push({ status: "pending", text: pm[1].trim() }); }
+    if (pm) { const c = extractComplexity(pm[1].trim()); current.tasks.push({ status: "pending", text: c.text, estimate: c.estimate, actual: c.actual }); }
   }
 
   return epics;

@@ -33,6 +33,11 @@
     </div>
   </header>
 
+  <nav class="tab-bar">
+    <button class="tab active" id="tab-projects">Projects</button>
+    <button class="tab" id="tab-ideas">Ideas <span id="idea-count" class="tab-count" style="display:none"></span></button>
+  </nav>
+
   <div id="dashboard" class="dashboard"></div>
 
   <main>
@@ -53,6 +58,10 @@
       </table>
     </div>
   </main>
+
+  <div id="ideas-panel" class="ideas-panel" style="display:none">
+    <div id="ideas-content" class="ideas-content">Loading ideas…</div>
+  </div>
 
   <script src="./app.js"></script>
 </body>

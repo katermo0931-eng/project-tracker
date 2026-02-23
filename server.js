@@ -1,5 +1,7 @@
 ﻿import express from "express";
 import path from "path";
+import os from "os";
+import { readFile } from "fs/promises";
 import { fileURLToPath } from "url";
 import { scanProjects } from "./scan.js";
 
@@ -70,6 +72,21 @@ app.get("/api/github-stats", async (req, res) => {
     });
   } catch (e) {
     res.status(500).json({ error: String(e) });
+  }
+});
+
+app.get("/api/ideas", async (req, res) => {
+  try {
+    const ideasPath = path.join(os.homedir(), ".claude", "IDEAS.md");
+    const content = await readFile(ideasPath, "utf8");
+    const lines = content.split(/\r?\n/);
+    let ideaCount = 0;
+    for (const line of lines) {
+      if (/\*\*Status:\*\*\s*idea\b/i.test(line)) ideaCount++;
+    }
+    res.json({ content, idea_count: ideaCount });
+  } catch (e) {
+    res.status(404).json({ error: String(e), content: null, idea_count: 0 });
   }
 });
 

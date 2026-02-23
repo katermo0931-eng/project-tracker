@@ -64,7 +64,7 @@ Phase 7: Product Identity & PM Insights — rename, ideas visibility, complexity
 ---
 
 # PHASE 7 — Product Identity & PM Insights
-- [x] Rename dashboard — "Meridian" (title, h1, package.json, README, server log, User-Agent)
-- [ ] Ideas tab — render IDEAS.md inside the dashboard so all ideas are visible at localhost:4319 without opening a file
-- [ ] Idea count badge — pull count of ideas from IDEAS.md and show in header or project row
-- [ ] Complexity column — add initial estimate vs actual time/resource fact-check column per task (PM insight feature)
+- [x] Rename dashboard — "Meridian" (title, h1, package.json, README, server log, User-Agent) [est:30m actual:20m]
+- [x] Ideas tab — render IDEAS.md inside the dashboard so all ideas are visible at localhost:4319 without opening a file [est:2h actual:1.5h]
+- [x] Idea count badge — pull count of ideas from IDEAS.md and show in header or project row [est:30m actual:20m]
+- [x] Complexity column — add initial estimate vs actual time/resource fact-check column per task (PM insight feature) [est:3h actual:2h]

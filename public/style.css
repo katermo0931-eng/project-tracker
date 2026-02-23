@@ -444,6 +444,155 @@ a.commit-hash:hover { text-decoration: underline; color: #60a5fa; }
 .gh-clean { background: rgba(96,165,250,.1);  color: #60a5fa; border-color: rgba(96,165,250,.25); }
 .li-badge { background: rgba(10,102,194,.18); color: #5badec; border-color: rgba(10,102,194,.4); font-weight: 700; letter-spacing: .03em; }
 
+/* ── Tab bar ──────────────────────────────────────── */
+.tab-bar {
+  display: flex;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  padding: 0 24px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color .15s;
+}
+.tab:hover { color: #94a3b8; }
+.tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+.tab.active:hover { color: #60a5fa; }
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(96,165,250,.15);
+  color: #60a5fa;
+  border: 1px solid rgba(96,165,250,.3);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+}
+
+/* ── Ideas panel ──────────────────────────────────── */
+.ideas-panel {
+  padding: 20px 24px 40px;
+  max-width: 860px;
+}
+
+.ideas-h2 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #60a5fa;
+  margin: 24px 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #334155;
+}
+
+.ideas-h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 16px 0 4px;
+}
+
+.ideas-hr {
+  border: none;
+  border-top: 1px solid #1e293b;
+  margin: 6px 0;
+}
+
+.ideas-p {
+  color: #94a3b8;
+  margin: 3px 0;
+  line-height: 1.6;
+}
+
+.ideas-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+
+.ideas-status-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.idea-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.idea-active { background: rgba(96,165,250,.12);  color: #60a5fa; border-color: rgba(96,165,250,.3); }
+.idea-done   { background: rgba(100,116,139,.1);  color: #64748b; border-color: rgba(100,116,139,.2); }
+.idea-other  { background: rgba(251,191,36,.1);   color: #fbbf24; border-color: rgba(251,191,36,.25); }
+
+.ideas-empty {
+  color: #475569;
+  font-style: italic;
+  margin-top: 16px;
+}
+
+.ideas-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  background: #0f172a;
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #93c5fd;
+}
+
+/* ── Complexity chips ─────────────────────────────── */
+.comp-chips {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.comp-est {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(251,191,36,.1);
+  color: #fbbf24;
+  border: 1px solid rgba(251,191,36,.2);
+  font-weight: 600;
+}
+
+.comp-actual {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(96,165,250,.1);
+  color: #60a5fa;
+  border: 1px solid rgba(96,165,250,.2);
+  font-weight: 600;
+}
+
 /* ── Mobile responsiveness ────────────────────────── */
 @media (max-width: 640px) {
   .top {

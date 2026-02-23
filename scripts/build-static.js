@@ -80,6 +80,11 @@ ${css}
     </div>
   </header>
 
+  <nav class="tab-bar">
+    <button class="tab active" id="tab-projects">Projects</button>
+    <button class="tab" id="tab-ideas">Ideas <span id="idea-count" class="tab-count" style="display:none"></span></button>
+  </nav>
+
   <div id="dashboard" class="dashboard"></div>
 
   <main>
@@ -101,6 +106,10 @@ ${css}
     </div>
   </main>
 
+  <div id="ideas-panel" class="ideas-panel" style="display:none">
+    <div id="ideas-content" class="ideas-content">Loading ideas…</div>
+  </div>
+
   <script>
     /* ── Static data shim ──────────────────────────────────
        Intercepts /api/* fetch calls and returns the snapshot
@@ -119,6 +128,11 @@ ${css}
         if (s.indexOf("/api/github-stats") !== -1) {
           return Promise.resolve({
             json: function () { return Promise.resolve({ error: "static mode" }); }
+          });
+        }
+        if (s.indexOf("/api/ideas") !== -1) {
+          return Promise.resolve({
+            json: function () { return Promise.resolve({ error: "static mode", content: null, idea_count: 0 }); }
           });
         }
         return _fetch.apply(this, arguments);
