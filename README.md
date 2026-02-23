@@ -1,6 +1,6 @@
 # Meridian
 
-**Live:** https://katermo0931-eng.github.io/project-tracker/
+**Live:** https://katermo0931-eng.github.io/meridian/
 
 A lightweight local web dashboard for tracking personal development projects — your fixed reference point across all active work. Replaces spreadsheets and sticky notes with a single live view of progress, phases, and git activity.
 
